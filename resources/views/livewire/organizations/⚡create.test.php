@@ -6,6 +6,7 @@ use Livewire\Livewire;
 use function Pest\Laravel\actingAs;
 
 it('creates a new organization for the user with valid data', function () {
+    /** @var User $user */
     $user = User::factory()->create();
     actingAs($user);
 
@@ -23,6 +24,7 @@ it('creates a new organization for the user with valid data', function () {
 });
 
 it('shows validation errors for missing or invalid organization name', function () {
+    /** @var User $user */
     $user = User::factory()->create();
     actingAs($user);
 

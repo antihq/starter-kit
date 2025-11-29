@@ -4,8 +4,11 @@ use App\Models\Organization;
 use App\Models\User;
 use Livewire\Livewire;
 
+use function Pest\Laravel\assertAuthenticated;
+use function Pest\Laravel\get;
+
 it('renders the registration screen', function () {
-    $response = $this->get('/register');
+    $response = get('/register');
 
     $response->assertStatus(200);
 });
@@ -22,7 +25,7 @@ it('registers a new user with valid data', function () {
         ->assertHasNoErrors()
         ->assertRedirect(route('dashboard', absolute: false));
 
-    $this->assertAuthenticated();
+    assertAuthenticated();
 });
 
 it('creates a personal organization for the new user on registration', function () {

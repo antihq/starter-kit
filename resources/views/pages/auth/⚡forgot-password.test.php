@@ -5,8 +5,10 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
+use function Pest\Laravel\get;
+
 it('renders the reset password link screen', function () {
-    $response = $this->get('/forgot-password');
+    $response = get('/forgot-password');
 
     $response->assertStatus(200);
 });
@@ -33,7 +35,7 @@ it('renders the reset password screen with a valid token', function () {
         ->call('sendPasswordResetLink');
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-        $response = $this->get('/reset-password/'.$notification->token);
+        $response = get('/reset-password/'.$notification->token);
 
         $response->assertStatus(200);
 

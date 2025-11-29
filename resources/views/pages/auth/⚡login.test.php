@@ -3,8 +3,13 @@
 use App\Models\User;
 use Livewire\Livewire;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertAuthenticated;
+use function Pest\Laravel\assertGuest;
+use function Pest\Laravel\get;
+
 it('renders the login screen', function () {
-    $response = $this->get('/login');
+    $response = get('/login');
 
     $response->assertStatus(200);
 });
@@ -21,7 +26,7 @@ it('authenticates users with valid credentials', function () {
         ->assertHasNoErrors()
         ->assertRedirect(route('dashboard', absolute: false));
 
-    $this->assertAuthenticated();
+    assertAuthenticated();
 });
 
 it('rejects authentication with an invalid password', function () {
@@ -34,15 +39,16 @@ it('rejects authentication with an invalid password', function () {
 
     $response->assertHasErrors('email');
 
-    $this->assertGuest();
+    assertGuest();
 });
 
 it('logs out authenticated users', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->post('/logout');
+    $response = actingAs($user)->post('/logout');
 
     $response->assertRedirect('/');
 
-    $this->assertGuest();
+    assertGuest();
 });
