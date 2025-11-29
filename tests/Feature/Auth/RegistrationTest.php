@@ -2,7 +2,7 @@
 
 use App\Models\Organization;
 use App\Models\User;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 it('renders the registration screen', function () {
     $response = $this->get('/register');
@@ -11,7 +11,7 @@ it('renders the registration screen', function () {
 });
 
 it('registers a new user with valid data', function () {
-    $response = Volt::test('auth.register')
+    $response = Livewire::test('auth.register')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->set('password', 'password')
@@ -29,7 +29,7 @@ it('creates a personal organization for the new user on registration', function 
     $userName = 'Test User';
     $userEmail = 'test2@example.com';
 
-    $response = Volt::test('auth.register')
+    $response = Livewire::test('auth.register')
         ->set('name', $userName)
         ->set('email', $userEmail)
         ->set('password', 'password')

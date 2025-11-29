@@ -5,7 +5,7 @@ use App\Models\User;
 use App\Models\OrganizationInvitation;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 use App\Notifications\OrganizationInvitation as OrganizationInvitationNotification;
 
 uses(RefreshDatabase::class);
@@ -19,7 +19,7 @@ it('unsets the members current organization when they are removed from that orga
     $member->switchOrganization($organization);
     expect($member->currentOrganization->is($organization))->toBeTrue();
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->call('removeMember', $member)
         ->assertHasNoErrors();
@@ -33,7 +33,7 @@ it('allows the owner to remove a member from their organization', function () {
     $member = User::factory()->create();
     $organization->members()->attach($member);
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->call('removeMember', $member)
         ->assertHasNoErrors();
@@ -48,7 +48,7 @@ it('forbids removing members from another organization', function () {
     $member = User::factory()->create();
     $organizationB->members()->attach($member);
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organizationA])
         ->call('removeMember', $member)
         ->assertForbidden();
@@ -59,7 +59,7 @@ it('forbids non-owners from accessing the organization members component', funct
     $organization = Organization::factory()->for($owner)->create();
     $nonOwner = User::factory()->create();
 
-    Volt::actingAs($nonOwner)
+    Livewire::actingAs($nonOwner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->assertForbidden();
 });
@@ -70,7 +70,7 @@ it('invites a member to an organization by email', function () {
     $organization = Organization::factory()->for($owner)->create();
     $inviteEmail = 'invitee@example.com';
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->set('email', $inviteEmail)
         ->call('sendInvitation')
@@ -93,7 +93,7 @@ it('requires an email to invite a member', function () {
     $owner = User::factory()->withPersonalOrganization()->create();
     $organization = Organization::factory()->for($owner)->create();
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->set('email', '')
         ->call('sendInvitation')
@@ -110,7 +110,7 @@ it('requires the email to be unique for the organization', function () {
         'email' => $inviteEmail,
     ]);
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->set('email', $inviteEmail)
         ->call('sendInvitation')
@@ -125,7 +125,7 @@ it('allows the owner to revoke a pending invitation', function () {
         'email' => $inviteEmail,
     ]);
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->call('revokeInvitation', $invitation)
         ->assertHasNoErrors();
@@ -139,7 +139,7 @@ it('forbids revoking an invitation for another organization', function () {
     $invitation = OrganizationInvitation::factory()->create();
     expect($invitation->organization->isNot($organization))->toBeTrue();
 
-    Volt::actingAs($owner)
+    Livewire::actingAs($owner)
         ->test('organizations.settings.members', ['organization' => $organization])
         ->call('revokeInvitation', $invitation)
         ->assertForbidden();

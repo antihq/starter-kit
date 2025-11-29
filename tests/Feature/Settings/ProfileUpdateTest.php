@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 test('profile page is displayed', function () {
     $user = User::factory()->withPersonalOrganization()->create();
@@ -15,7 +15,7 @@ it('updates the profile information', function () {
 
     $this->actingAs($user);
 
-    $response = Volt::test('settings.profile')
+    $response = Livewire::test('settings.profile')
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
         ->call('updateProfileInformation');
@@ -34,7 +34,7 @@ test('email verification status is unchanged when email address is unchanged', f
 
     $this->actingAs($user);
 
-    $response = Volt::test('settings.profile')
+    $response = Livewire::test('settings.profile')
         ->set('name', 'Test User')
         ->set('email', $user->email)
         ->call('updateProfileInformation');
@@ -49,7 +49,7 @@ it('deletes the user account with the correct password', function () {
 
     $this->actingAs($user);
 
-    $response = Volt::test('settings.delete-user-form')
+    $response = Livewire::test('settings.delete-user-form')
         ->set('password', 'password')
         ->call('deleteUser');
 
@@ -66,7 +66,7 @@ test('correct password must be provided to delete account', function () {
 
     $this->actingAs($user);
 
-    $response = Volt::test('settings.delete-user-form')
+    $response = Livewire::test('settings.delete-user-form')
         ->set('password', 'wrong-password')
         ->call('deleteUser');
 

@@ -1,6 +1,6 @@
 <?php
 
-use Livewire\Volt\Component;
+use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use App\Models\Organization;

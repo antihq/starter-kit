@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 it('renders the confirm password screen', function () {
     $user = User::factory()->create();
@@ -16,7 +16,7 @@ it('confirms the password with valid credentials', function () {
 
     $this->actingAs($user);
 
-    $response = Volt::test('auth.confirm-password')
+    $response = Livewire::test('auth.confirm-password')
         ->set('password', 'password')
         ->call('confirmPassword');
 
@@ -30,7 +30,7 @@ it('rejects confirmation with an invalid password', function () {
 
     $this->actingAs($user);
 
-    $response = Volt::test('auth.confirm-password')
+    $response = Livewire::test('auth.confirm-password')
         ->set('password', 'wrong-password')
         ->call('confirmPassword');
 

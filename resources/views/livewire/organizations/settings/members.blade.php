@@ -1,6 +1,6 @@
 <?php
 
-use Livewire\Volt\Component;
+use Livewire\Component;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\OrganizationInvitation;

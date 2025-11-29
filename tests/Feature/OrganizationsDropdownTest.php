@@ -2,7 +2,7 @@
 
 use App\Models\Organization;
 use App\Models\User;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 it('allows user to switch organizations from the dropdown', function () {
     $user = User::factory()->has(Organization::factory()->count(2))->create();
@@ -12,7 +12,7 @@ it('allows user to switch organizations from the dropdown', function () {
     $user->switchOrganization($orgA);
     expect($user->fresh()->currentOrganization->is($orgA))->toBeTrue();
 
-    Volt::actingAs($user)
+    Livewire::actingAs($user)
         ->test('organizations-dropdown')
         ->call('switchOrganization', $orgB->id)
         ->assertRedirect(route('dashboard'));
@@ -29,7 +29,7 @@ it('allows user to switch to an organization they are a member of', function () 
     $member->switchOrganization($org);
     expect($member->fresh()->currentOrganization->is($org))->toBeTrue();
 
-    Volt::actingAs($member)
+    Livewire::actingAs($member)
         ->test('organizations-dropdown')
         ->call('switchOrganization', $org->id)
         ->assertRedirect(route('dashboard'));
@@ -45,7 +45,7 @@ it('prevents user from switching to an organization they do not own', function (
     $user->switchOrganization($orgA);
     expect($user->fresh()->currentOrganization->is($orgA))->toBeTrue();
 
-    Volt::actingAs($user)
+    Livewire::actingAs($user)
         ->test('organizations-dropdown')
         ->call('switchOrganization', $otherOrg->id)
         ->assertForbidden();

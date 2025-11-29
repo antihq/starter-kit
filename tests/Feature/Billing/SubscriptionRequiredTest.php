@@ -3,7 +3,7 @@
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Volt\Volt;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -16,7 +16,7 @@ test('switching to a subscribed organization redirects to dashboard', function (
     $unsubscribedOrg = Organization::factory()->for($user)->create();
     $user->switchOrganization($unsubscribedOrg);
 
-    Volt::actingAs($user)->test('billing.subscription-required')
+    Livewire::actingAs($user)->test('billing.subscription-required')
         ->call('switchOrganization', $subscribedOrg)
         ->assertRedirect(route('dashboard'));
 });
@@ -30,7 +30,7 @@ test('switching to a non-subscribed organization stays on the page', function ()
 
     $user->switchOrganization($org1);
 
-    Volt::actingAs($user)->test('billing.subscription-required')
+    Livewire::actingAs($user)->test('billing.subscription-required')
         ->call('switchOrganization', $org2)
         ->assertOk();
 });
@@ -44,7 +44,7 @@ test('user can switch to an organization they are a member of', function () {
 
     $user->switchOrganization($user->organizations->first());
 
-    Volt::actingAs($user)->test('billing.subscription-required')
+    Livewire::actingAs($user)->test('billing.subscription-required')
         ->call('switchOrganization', $org)
         ->assertOk();
 });
@@ -58,7 +58,7 @@ test('user cannot switch to an organization they neither own nor are a member of
 
     $user->switchOrganization($user->organizations->first());
 
-    Volt::actingAs($user)->test('billing.subscription-required')
+    Livewire::actingAs($user)->test('billing.subscription-required')
         ->call('switchOrganization', $otherOrg)
         ->assertForbidden();
 });
