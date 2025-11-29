@@ -16,7 +16,7 @@ it('sends a reset password link when requested', function () {
 
     $user = User::factory()->create();
 
-    Livewire::test('pages::auth.forgot-password')
+    Livewire::test('pages::auth.⚡forgot-password')
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
@@ -28,7 +28,7 @@ it('renders the reset password screen with a valid token', function () {
 
     $user = User::factory()->create();
 
-    Livewire::test('pages::auth.forgot-password')
+    Livewire::test('pages::auth.⚡forgot-password')
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
@@ -46,12 +46,12 @@ it('resets the password with a valid token', function () {
 
     $user = User::factory()->create();
 
-    Livewire::test('pages::auth.forgot-password')
+    Livewire::test('pages::auth.⚡forgot-password')
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-        $response = Livewire::test('pages::auth.reset-password', ['token' => $notification->token])
+        $response = Livewire::test('pages::auth.⚡reset-password', ['token' => $notification->token])
             ->set('email', $user->email)
             ->set('password', 'password')
             ->set('password_confirmation', 'password')

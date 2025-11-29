@@ -14,7 +14,7 @@ it('an authenticated user can edit their organization name', function () {
         ]);
 
     Livewire::actingAs($user)
-        ->test('pages::organizations.settings.general', ['organization' => $organization])
+        ->test('pages::organizations.settings.⚡general', ['organization' => $organization])
         ->set('name', 'New Name')
         ->call('edit')
         ->assertHasNoErrors();
@@ -31,7 +31,7 @@ it('cannot update organization name to empty', function () {
         ]);
 
     Livewire::actingAs($user)
-        ->test('pages::organizations.settings.general', ['organization' => $organization])
+        ->test('pages::organizations.settings.⚡general', ['organization' => $organization])
         ->set('name', '')
         ->call('edit')
         ->assertHasErrors(['name' => 'required']);
@@ -47,7 +47,7 @@ it('forbids non-owners from editing the organization name', function () {
         ]);
 
     Livewire::actingAs($nonOwner)
-        ->test('pages::organizations.settings.general', ['organization' => $organization])
+        ->test('pages::organizations.settings.⚡general', ['organization' => $organization])
         ->assertForbidden();
 
     expect($organization->fresh()->name)->toBe('Old Name');
@@ -58,7 +58,7 @@ it('returns a successful response for the organization details page', function (
     $organization = Organization::factory()->for($user)->create();
 
     Livewire::actingAs($user)
-        ->test('pages::organizations.settings.general', ['organization' => $organization])
+        ->test('pages::organizations.settings.⚡general', ['organization' => $organization])
         ->assertOk();
 });
 
@@ -70,6 +70,6 @@ it('forbids organization members (non-owners) from accessing the organization de
     $member->switchOrganization($organization);
 
     Livewire::actingAs($member)
-        ->test('pages::organizations.settings.general', ['organization' => $organization])
+        ->test('pages::organizations.settings.⚡general', ['organization' => $organization])
         ->assertForbidden();
 });
