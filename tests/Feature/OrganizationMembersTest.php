@@ -20,7 +20,7 @@ it('unsets the members current organization when they are removed from that orga
     expect($member->currentOrganization->is($organization))->toBeTrue();
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->call('removeMember', $member)
         ->assertHasNoErrors();
 
@@ -34,7 +34,7 @@ it('allows the owner to remove a member from their organization', function () {
     $organization->members()->attach($member);
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->call('removeMember', $member)
         ->assertHasNoErrors();
 
@@ -49,7 +49,7 @@ it('forbids removing members from another organization', function () {
     $organizationB->members()->attach($member);
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organizationA])
+        ->test('pages::organizations.settings.members', ['organization' => $organizationA])
         ->call('removeMember', $member)
         ->assertForbidden();
 });
@@ -60,7 +60,7 @@ it('forbids non-owners from accessing the organization members component', funct
     $nonOwner = User::factory()->create();
 
     Livewire::actingAs($nonOwner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->assertForbidden();
 });
 
@@ -71,7 +71,7 @@ it('invites a member to an organization by email', function () {
     $inviteEmail = 'invitee@example.com';
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->set('email', $inviteEmail)
         ->call('sendInvitation')
         ->assertHasNoErrors();
@@ -94,7 +94,7 @@ it('requires an email to invite a member', function () {
     $organization = Organization::factory()->for($owner)->create();
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->set('email', '')
         ->call('sendInvitation')
         ->assertHasErrors(['email' => 'required']);
@@ -111,7 +111,7 @@ it('requires the email to be unique for the organization', function () {
     ]);
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->set('email', $inviteEmail)
         ->call('sendInvitation')
         ->assertHasErrors(['email' => 'unique']);
@@ -126,7 +126,7 @@ it('allows the owner to revoke a pending invitation', function () {
     ]);
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->call('revokeInvitation', $invitation)
         ->assertHasNoErrors();
 
@@ -140,7 +140,7 @@ it('forbids revoking an invitation for another organization', function () {
     expect($invitation->organization->isNot($organization))->toBeTrue();
 
     Livewire::actingAs($owner)
-        ->test('organizations.settings.members', ['organization' => $organization])
+        ->test('pages::organizations.settings.members', ['organization' => $organization])
         ->call('revokeInvitation', $invitation)
         ->assertForbidden();
 });

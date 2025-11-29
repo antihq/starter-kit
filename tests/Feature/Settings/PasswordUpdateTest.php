@@ -11,7 +11,7 @@ it('updates the password with the correct current password', function () {
 
     $this->actingAs($user);
 
-    $response = Livewire::test('settings.password')
+    $response = Livewire::test('pages::settings.password')
         ->set('current_password', 'password')
         ->set('password', 'new-password')
         ->set('password_confirmation', 'new-password')
@@ -29,7 +29,7 @@ it('requires the correct current password to update the password', function () {
 
     $this->actingAs($user);
 
-    $response = Livewire::test('settings.password')
+    $response = Livewire::test('pages::settings.password')
         ->set('current_password', 'wrong-password')
         ->set('password', 'new-password')
         ->set('password_confirmation', 'new-password')

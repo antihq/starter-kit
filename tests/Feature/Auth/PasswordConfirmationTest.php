@@ -16,7 +16,7 @@ it('confirms the password with valid credentials', function () {
 
     $this->actingAs($user);
 
-    $response = Livewire::test('auth.confirm-password')
+    $response = Livewire::test('pages::auth.confirm-password')
         ->set('password', 'password')
         ->call('confirmPassword');
 
@@ -30,7 +30,7 @@ it('rejects confirmation with an invalid password', function () {
 
     $this->actingAs($user);
 
-    $response = Livewire::test('auth.confirm-password')
+    $response = Livewire::test('pages::auth.confirm-password')
         ->set('password', 'wrong-password')
         ->call('confirmPassword');
 
