@@ -8,7 +8,7 @@ use App\Livewire\Actions\Logout;
 use App\Models\Organization;
 use Illuminate\Database\Eloquent\Collection;
 
-new #[Layout('components.layouts.auth')] class extends Component {
+new #[Layout('layouts::auth')] class extends Component {
     public Collection $organizations;
     public ?int $selectedOrganizationId;
 
