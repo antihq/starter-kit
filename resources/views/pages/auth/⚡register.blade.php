@@ -37,17 +37,15 @@ new #[Layout('layouts::auth')] class extends Component {
 
         $this->ensureIsNotRateLimited();
 
-        // Create user but don't log them in yet
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
-            'password' => bcrypt(Str::random(32)), // Random password, won't be used
         ]);
 
-        // Send OTP for verification
         $user->sendOneTimePassword();
 
         $this->showOtpForm = true;
+
         $this->reset('one_time_password');
     }
 
@@ -72,10 +70,8 @@ new #[Layout('layouts::auth')] class extends Component {
             RateLimiter::clear($this->throttleKey());
             Session::regenerate();
 
-            // Mark email as verified
             $user->markEmailAsVerified();
 
-            // Create personal organization
             Organization::create([
                 'name' => $user->name,
                 'user_id' => $user->id,
@@ -87,6 +83,7 @@ new #[Layout('layouts::auth')] class extends Component {
             Auth::login($user);
 
             $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+
             return;
         }
 
@@ -130,6 +127,8 @@ new #[Layout('layouts::auth')] class extends Component {
     public function resetForm(): void
     {
         $this->reset(['name', 'email', 'one_time_password', 'showOtpForm']);
+
+        $this->resetErrorBag();
     }
 }; ?>
 
@@ -178,16 +177,16 @@ new #[Layout('layouts::auth')] class extends Component {
             </div>
 
             <!-- One-Time Password -->
-            <flux:input
-                wire:model="one_time_password"
-                :label="__('One-time password')"
-                type="text"
-                required
-                autofocus
-                autocomplete="one-time-code"
-                placeholder="123456"
-                maxlength="6"
-            />
+            <div>
+                <flux:otp
+                    wire:model="one_time_password"
+                    :label="__('One-time password')"
+                    length="6"
+                    submit="auto"
+                />
+
+                <flux:error name="email" />
+            </div>
 
             <div class="flex gap-3">
                 <flux:button type="submit" variant="primary" class="flex-1">

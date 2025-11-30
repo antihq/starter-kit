@@ -36,6 +36,9 @@ new #[Layout('layouts::auth')] class extends Component {
         if (!$user) {
             // Don't reveal if user exists or not for security
             $this->showOtpForm = true;
+
+            $this->reset('one_time_password');
+
             return;
         }
 
@@ -113,6 +116,8 @@ new #[Layout('layouts::auth')] class extends Component {
     public function resetForm(): void
     {
         $this->reset(['email', 'one_time_password', 'showOtpForm']);
+
+        $this->resetErrorBag();
     }
 }; ?>
 
@@ -151,16 +156,16 @@ new #[Layout('layouts::auth')] class extends Component {
             </div>
 
             <!-- One-Time Password -->
-            <flux:input
-                wire:model="one_time_password"
-                :label="__('One-time password')"
-                type="text"
-                required
-                autofocus
-                autocomplete="one-time-code"
-                placeholder="123456"
-                maxlength="6"
-            />
+            <div>
+                <flux:otp
+                    wire:model="one_time_password"
+                    :label="__('One-time password')"
+                    length="6"
+                    submit="auto"
+                />
+
+                <flux:error name="email" />
+            </div>
 
             <div class="flex gap-3">
                 <flux:button type="submit" variant="primary" class="flex-1">
@@ -174,13 +179,12 @@ new #[Layout('layouts::auth')] class extends Component {
 
             <!-- Resend OTP -->
             <div class="text-center">
-                <flux:link 
-                    wire:click="sendOtp" 
-                    wire:loading.attr="disabled"
-                    class="text-sm"
+                <flux:button
+                    wire:click="sendOtp"
+                    variant="ghost"
                 >
                     {{ __("Didn't receive a code? Resend") }}
-                </flux:link>
+                </flux:button>
             </div>
         </form>
     @endif

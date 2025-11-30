@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
+use Spatie\OneTimePasswords\Notifications\OneTimePasswordNotification;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertAuthenticated;
@@ -28,7 +29,7 @@ it('sends OTP when user enters valid email', function () {
         ->assertHasNoErrors()
         ->assertSet('showOtpForm', true);
 
-    Notification::assertSentTo($user, \Spatie\OneTimePasswords\Notifications\OneTimePasswordNotification::class);
+    Notification::assertSentTo($user, OneTimePasswordNotification::class);
 });
 
 it('shows OTP form after sending email', function () {
