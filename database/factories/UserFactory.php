@@ -2,12 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\SubscriptionItem;
-use App\Models\Organization;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -73,7 +72,7 @@ class UserFactory extends Factory
                 ->state(array_merge([
                     'organization_id' => $organization->id,
                     'type' => 'default',
-                    'stripe_id' => 'sub_' . Str::random(24),
+                    'stripe_id' => 'sub_'.Str::random(24),
                     'stripe_status' => 'active',
                 ], $subOverrides))
                 ->create();

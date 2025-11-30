@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
-use App\Models\Organization;
 
 class AppServiceProvider extends ServiceProvider
 {

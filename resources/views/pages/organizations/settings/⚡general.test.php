@@ -3,7 +3,6 @@
 use App\Models\Organization;
 use App\Models\User;
 use Livewire\Livewire;
-use function Pest\Laravel\actingAs;
 
 it('an authenticated user can edit their organization name', function () {
     $user = User::factory()->create();

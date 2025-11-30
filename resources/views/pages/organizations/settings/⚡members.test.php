@@ -1,12 +1,12 @@
 <?php
 
 use App\Models\Organization;
-use App\Models\User;
 use App\Models\OrganizationInvitation;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use App\Models\User;
 use App\Notifications\OrganizationInvitation as OrganizationInvitationNotification;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 

@@ -3,6 +3,7 @@
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
+
 use function Pest\Laravel\actingAs;
 
 it('allows a user to accept an organization invitation and join', function () {
