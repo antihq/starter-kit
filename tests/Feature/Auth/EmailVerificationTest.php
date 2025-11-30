@@ -1,47 +1,20 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Events\Verified;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\URL;
 
-it('renders the email verification screen', function () {
+it('allows OTP login without email verification requirement', function () {
+    // This test verifies that OTP authentication works independently
+    // of the old email verification system
+
     $user = User::factory()->unverified()->create();
 
-    $response = $this->actingAs($user)->get('/verify-email');
+    // Simulate OTP verification
+    $otp = $user->createOneTimePassword()->password;
+    $result = $user->attemptLoginUsingOneTimePassword($otp);
 
-    $response->assertStatus(200);
-});
+    expect($result->isOk())->toBeTrue();
 
-it('verifies the user email with a valid hash', function () {
-    $user = User::factory()->unverified()->create();
-
-    Event::fake();
-
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1($user->email)]
-    );
-
-    $response = $this->actingAs($user)->get($verificationUrl);
-
-    Event::assertDispatched(Verified::class);
-
-    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
-    $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
-});
-
-it('does not verify the email with an invalid hash', function () {
-    $user = User::factory()->unverified()->create();
-
-    $verificationUrl = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $user->id, 'hash' => sha1('wrong-email')]
-    );
-
-    $this->actingAs($user)->get($verificationUrl);
-
+    // Email verification is now handled during registration via OTP
+    // For existing users, OTP login works regardless of verification status
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
 });

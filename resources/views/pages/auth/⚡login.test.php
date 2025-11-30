@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
@@ -14,12 +15,43 @@ it('renders the login screen', function () {
     $response->assertStatus(200);
 });
 
-it('authenticates users with valid credentials', function () {
+it('sends OTP when user enters valid email', function () {
     $user = User::factory()->create();
+
+    Notification::fake();
 
     $response = Livewire::test('pages::auth.login')
         ->set('email', $user->email)
-        ->set('password', 'password')
+        ->call('sendOtp');
+
+    $response
+        ->assertHasNoErrors()
+        ->assertSet('showOtpForm', true);
+
+    Notification::assertSentTo($user, \Spatie\OneTimePasswords\Notifications\OneTimePasswordNotification::class);
+});
+
+it('shows OTP form after sending email', function () {
+    $user = User::factory()->create();
+
+    Notification::fake();
+
+    Livewire::test('pages::auth.login')
+        ->set('email', $user->email)
+        ->call('sendOtp')
+        ->assertSee('One-time password');
+});
+
+it('authenticates users with valid OTP', function () {
+    $user = User::factory()->create();
+
+    // Generate OTP manually for testing
+    $otp = $user->createOneTimePassword()->password;
+
+    $response = Livewire::test('pages::auth.login')
+        ->set('email', $user->email)
+        ->set('one_time_password', $otp)
+        ->set('showOtpForm', true)
         ->call('login');
 
     $response
@@ -29,17 +61,27 @@ it('authenticates users with valid credentials', function () {
     assertAuthenticated();
 });
 
-it('rejects authentication with an invalid password', function () {
+it('rejects authentication with an invalid OTP', function () {
     $user = User::factory()->create();
 
     $response = Livewire::test('pages::auth.login')
         ->set('email', $user->email)
-        ->set('password', 'wrong-password')
+        ->set('one_time_password', '123456')
+        ->set('showOtpForm', true)
         ->call('login');
 
-    $response->assertHasErrors('email');
+    $response->assertHasErrors('one_time_password');
 
     assertGuest();
+});
+
+it('does not reveal if user exists when sending OTP', function () {
+    $response = Livewire::test('pages::auth.login')
+        ->set('email', 'nonexistent@example.com')
+        ->call('sendOtp');
+
+    // Should still show OTP form for security
+    $response->assertSet('showOtpForm', true);
 });
 
 it('logs out authenticated users', function () {
