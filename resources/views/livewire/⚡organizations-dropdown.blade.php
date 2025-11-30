@@ -36,21 +36,25 @@ new class extends Component {
     }
 }; ?>
 
-<flux:dropdown position="top" align="start">
-    <flux:profile
-        :name="$currentOrganization?->name ?? __('No organization')"
-    />
-    <flux:menu>
-        <flux:menu.radio.group wire:model.live="selectedOrganizationId">
-            @foreach($organizations as $organization)
-                <flux:menu.radio :value="$organization->id">
-                    {{ $organization->name }}
-                </flux:menu.radio>
-            @endforeach
-        </flux:menu.radio.group>
-        <flux:menu.separator />
-        <flux:modal.trigger name="create-organization">
-            <flux:menu.item icon="plus">{{ __('New organization') }}</flux:menu.item>
-        </flux:modal.trigger>
-    </flux:menu>
-</flux:dropdown>
+<flux:button.group>
+    <flux:button :href="route('dashboard')" variant="subtle" size="sm" wire:navigate>
+        <flux:avatar size="xs" :name="$currentOrganization?->name" color="auto" initials:single class="-ml-2" />
+        {{ $currentOrganization->name }}
+    </flux:button>
+    <flux:dropdown position="top" align="start">
+        <flux:button icon="chevron-up-down" variant="subtle" size="sm" square></flux:button>
+        <flux:menu>
+            <flux:menu.radio.group wire:model.live="selectedOrganizationId">
+                @foreach($organizations as $organization)
+                    <flux:menu.radio :value="$organization->id">
+                        {{ $organization->name }}
+                    </flux:menu.radio>
+                @endforeach
+            </flux:menu.radio.group>
+            <flux:menu.separator />
+            <flux:modal.trigger name="create-organization">
+                <flux:menu.item icon="plus">New organization</flux:menu.item>
+            </flux:modal.trigger>
+        </flux:menu>
+    </flux:dropdown>
+</flux:button.group>
