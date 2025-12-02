@@ -6,6 +6,17 @@
       "thinkingType": "disabled",
     }
   },
+  "lsp": {
+    "php intelephense": {
+      "command": [
+        "intelephense",
+        "--stdio"
+      ],
+      "extensions": [
+        ".php"
+      ]
+    }
+  },
   "mcp": {
     "laravel-boost": {
       "type": "local",
