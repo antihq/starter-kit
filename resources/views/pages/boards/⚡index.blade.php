@@ -2,6 +2,7 @@
 
 use App\Models\Board;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,7 +21,9 @@ new #[Title('Boards')] class extends Component
 <div>
     <header class="mb-8 flex items-center justify-between">
         <flux:heading class="text-2xl">Boards</flux:heading>
-        <flux:button href="/boards/create" variant="primary" wire:navigate>Create Board</flux:button>
+        <flux:modal.trigger name="create-board">
+            <flux:button variant="primary">Create Board</flux:button>
+        </flux:modal.trigger>
     </header>
 
     @if ($this->boards->count() > 0)
@@ -37,7 +40,13 @@ new #[Title('Boards')] class extends Component
             <flux:text class="mb-6 text-zinc-600 dark:text-zinc-400">
                 Create your first board to get started with your team.
             </flux:text>
-            <flux:button href="/boards/create" variant="primary" wire:navigate>Create Board</flux:button>
+            <flux:modal.trigger name="create-board">
+                <flux:button variant="primary">Create Board</flux:button>
+            </flux:modal.trigger>
         </div>
     @endif
+
+    <flux:modal name="create-board" class="md:w-[512px]">
+        <livewire:create-board-form @created="$refresh; $flux.modal('create-board').close();" />
+    </flux:modal>
 </div>

@@ -4,12 +4,13 @@ use App\Models\Board;
 use App\Models\User;
 use Livewire\Livewire;
 
-use function Pest\Laravel\actingAs;
-
-it('can view board creation page', function () {
+it('can view boards index with create button', function () {
     $user = User::factory()->withPersonalTeam()->create();
 
-    actingAs($user)->get('/boards/create')->assertSuccessful();
+    Livewire::actingAs($user)
+        ->test('pages::boards.index')
+        ->assertSee('Create Board')
+        ->assertSee('No boards yet');
 });
 
 it('can create a board with name only', function () {
@@ -17,7 +18,7 @@ it('can create a board with name only', function () {
     $team = $user->currentTeam;
 
     Livewire::actingAs($user)
-        ->test('pages::boards.create')
+        ->test('create-board-form')
         ->set('name', 'Test Board')
         ->call('create')
         ->assertRedirect('/boards/1');
@@ -29,15 +30,6 @@ it('can create a board with name only', function () {
 
     $columns = $board->columns()->get();
     expect($columns)->toHaveCount(3);
-
-    $maybeColumn = $columns->firstWhere('name', 'Maybe');
-    expect($maybeColumn->position)->toBe(1);
-
-    $notNowColumn = $columns->firstWhere('name', 'Not Now');
-    expect($notNowColumn->position)->toBe(2);
-
-    $doneColumn = $columns->firstWhere('name', 'Done');
-    expect($doneColumn->position)->toBe(3);
 
     $maybeColumn = $columns->firstWhere('name', 'Maybe');
     expect($maybeColumn->position)->toBe(1);

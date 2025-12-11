@@ -1,0 +1,1 @@
+- Only a name is needed to create a new board.
