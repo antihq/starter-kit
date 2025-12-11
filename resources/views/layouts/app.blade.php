@@ -16,7 +16,7 @@
             </div>
 
             <flux:navbar class="-mb-px max-lg:hidden">
-                {{--  --}}
+                <flux:navbar.item href="/boards" wire:navigate>Boards</flux:navbar.item>
             </flux:navbar>
 
             <flux:spacer />
@@ -74,7 +74,7 @@
             <flux:separator variant="subtle" />
 
             <flux:sidebar.nav>
-                {{--  --}}
+                <flux:button href="/boards" variant="ghost" align="start" wire:navigate>Boards</flux:button>
             </flux:sidebar.nav>
         </flux:sidebar>
 

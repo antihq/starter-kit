@@ -23,5 +23,6 @@
       "command": ["./.opencode/format.sh", "$FILE"],
       "extensions": [".php"]
     },
-  }
+  },
+  "plugin": ["@tarquinen/opencode-dcp@latest"]
 }

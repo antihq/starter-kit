@@ -7,6 +7,7 @@ Route::livewire('/', 'pages::welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('dashboard/', 'pages::dashboard');
+    Route::livewire('boards', 'pages::boards.index');
     Route::livewire('boards/create', 'pages::boards.create');
     Route::livewire('boards/{board}', 'pages::boards.show');
 });
