@@ -1,13 +1,17 @@
 <?php
 
 use App\Models\User;
+use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component {
+new #[Title('Profile settings')] class extends Component
+{
     public string $name = '';
+
     public string $email = '';
 
     /**
@@ -35,7 +39,7 @@ new class extends Component {
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($user->id)
+                Rule::unique(User::class)->ignore($user->id),
             ],
         ]);
 
@@ -47,70 +51,38 @@ new class extends Component {
 
         $user->save();
 
-        $this->dispatch('profile-updated', name: $user->name);
-    }
-
-    /**
-     * Send an email verification notification to the current user.
-     */
-    public function resendVerificationNotification(): void
-    {
-        $user = Auth::user();
-
-        if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
-
-            return;
-        }
-
-        $user->sendEmailVerificationNotification();
-
-        Session::flash('status', 'verification-link-sent');
+        Flux::toast(
+            heading: 'Saved',
+            text: 'Profile updated successfully.',
+            variant: 'success'
+        );
     }
 }; ?>
 
-<x-slot:breadcrumbs>
-    @include('partials.settings-breadcrumbs', ['current' => __('Profile')])
-</x-slot:breadcrumbs>
+<div class="mx-auto max-w-[512px]">
+    <flux:link href="/dashboard" class="inline-flex items-center gap-2 text-sm" variant="subtle" inline wire:navigate>
+        <flux:icon.chevron-left variant="micro" />
+        Back to home
+    </flux:link>
 
-<section class="w-full">
-    @include('partials.settings-heading')
+    <flux:spacer class="mt-4 lg:mt-8" />
 
-    <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
-        <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+    <form wire:submit="updateProfileInformation">
+        <header class="flex items-center gap-3">
+            <flux:heading class="text-xl">Profile Settings</flux:heading>
+        </header>
+        <flux:text class="mt-2">Update your personal information.</flux:text>
 
-            <div>
-                <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
+        <flux:spacer class="mt-10" />
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
-                    <div>
-                        <flux:text class="mt-4">
-                            {{ __('Your email address is unverified.') }}
+        <div class="space-y-6">
+            <flux:input wire:model="name" label="Name" type="text" required autofocus autocomplete="name" />
 
-                            <flux:link class="text-sm cursor-pointer" wire:click.prevent="resendVerificationNotification">
-                                {{ __('Click here to re-send the verification email.') }}
-                            </flux:link>
-                        </flux:text>
+            <flux:input wire:model="email" label="Email" type="email" required autocomplete="email" />
+        </div>
 
-                        @if (session('status') === 'verification-link-sent')
-                            <flux:text class="mt-2 font-medium !dark:text-green-400 !text-green-600">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </flux:text>
-                        @endif
-                    </div>
-                @endif
-            </div>
+        <flux:spacer class="mt-8" />
 
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
-                </div>
-
-                <x-action-message class="me-3" on="profile-updated">
-                    {{ __('Saved.') }}
-                </x-action-message>
-            </div>
-        </form>
-    </x-settings.layout>
-</section>
+        <flux:button type="submit" variant="primary" color="zinc" class="w-full">Save changes</flux:button>
+    </form>
+</div>

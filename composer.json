@@ -65,7 +65,8 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
-        ]
+        ],
+        "format-blade": "npx prettier --write resources/views/"
     },
     "extra": {
         "laravel": {

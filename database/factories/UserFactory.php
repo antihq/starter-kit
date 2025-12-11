@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Organization;
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Subscription;
@@ -39,12 +39,12 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the user has a personal organization and sets it as current.
+     * Indicate that the user has a personal team and sets it as current.
      */
-    public function withPersonalOrganization(array $overrides = []): static
+    public function withPersonalTeam(array $overrides = []): static
     {
         return $this->afterCreating(function ($user) use ($overrides) {
-            Organization::factory()
+            Team::factory()
                 ->state(array_merge([
                     'user_id' => $user->id,
                     'personal' => true,
@@ -55,22 +55,22 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the user has a personal organization with an active subscription.
+     * Indicate that the user has a personal team with an active subscription.
      */
-    public function withPersonalOrganizationAndSubscription(array $orgOverrides = [], array $subOverrides = [], array $itemOverrides = []): static
+    public function withPersonalTeamAndSubscription(array $teamOverrides = [], array $subOverrides = [], array $itemOverrides = []): static
     {
-        return $this->afterCreating(function ($user) use ($orgOverrides, $subOverrides, $itemOverrides) {
-            $organization = Organization::factory()
+        return $this->afterCreating(function ($user) use ($teamOverrides, $subOverrides, $itemOverrides) {
+            $team = Team::factory()
                 ->state(array_merge([
                     'user_id' => $user->id,
                     'personal' => true,
                     'name' => $user->name,
-                ], $orgOverrides))
+                ], $teamOverrides))
                 ->create();
 
             $subscription = Subscription::factory()
                 ->state(array_merge([
-                    'organization_id' => $organization->id,
+                    'team_id' => $team->id,
                     'type' => 'default',
                     'stripe_id' => 'sub_'.Str::random(24),
                     'stripe_status' => 'active',

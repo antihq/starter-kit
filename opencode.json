@@ -1,11 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "agent": {
-    "no-thinker": {
-      "model": "zai-coding-plan/glm-4.6",
-      "thinkingType": "disabled",
-    }
-  },
   "lsp": {
     "php intelephense": {
       "command": [

@@ -1,110 +1,98 @@
-# Terrific SaaS Starter Kit
+# Anti Starter Kit
 
-A personal, opinionated Laravel starter kit for building SaaS applications quickly and securely. This kit includes:
+<!--  -->
 
-- **Laravel 12.x**
-- **Stripe billing** via [Laravel Cashier](https://laravel.com/docs/billing) (one plan, subscription required for dashboard access)
-- **Stripe Checkout** for new subscriptions
-- **Billing portal** for subscribers
-- **Flux UI Pro** components (paid license required)
-- **Honeybadger** for error tracking
+## Development
 
-## Features
+### Setting up
 
-- User authentication and registration
-- Enforced active subscription for dashboard access
-- Simple billing system (single plan, easy to extend)
-- Stripe Checkout integration for seamless payments
-- Access to Stripe's billing portal for managing subscriptions
-- Modern, beautiful UI with Flux UI Pro components
-- Error monitoring with Honeybadger
+First, get everything installed and configured with:
 
-## Requirements
+```sh
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+```
 
-- PHP >= 8.2
-- Composer
-- Node.js & npm
-- [Flux UI Pro license](https://www.fluxui.com/pricing) (required for UI components)
-- [Stripe account](https://dashboard.stripe.com/register)
-- [Honeybadger account](https://www.honeybadger.io/)
+And then run the development server:
 
-## Getting Started
+```sh
+npm run dev
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/terrific-starter-kit.git
-   cd terrific-starter-kit
-   ```
+In another terminal, start the Laravel server:
 
-2. **Install dependencies:**
-   ```bash
-   composer install
-   npm install && npm run build
-   ```
+```sh
+php artisan serve
+```
 
-3. **Copy and configure environment:**
-   ```bash
-   cp .env.example .env
-   # Set your database, Stripe, Flux UI Pro, and Honeybadger credentials in .env
-   ```
+You'll be able to access the app in development at http://localhost:8000.
 
-4. **Generate application key:**
-   ```bash
-   php artisan key:generate
-   ```
+### Running tests
 
-5. **Run migrations:**
-   ```bash
-   php artisan migrate
-   ```
+For fast feedback loops, tests can be run with:
 
-6. **Start the development server:**
-   ```bash
-   php artisan serve
-   ```
+```sh
+composer test
+```
 
-## Stripe Billing (Laravel Cashier)
+Or using Pest directly:
 
-- Uses [Laravel Cashier](https://laravel.com/docs/billing) for Stripe subscription management.
-- Only one plan is configured by default (easy to extend).
-- Users must have an active subscription to access the dashboard.
-- Stripe Checkout is used for new subscriptions.
-- Subscribers can access the Stripe billing portal to manage their subscription.
+```sh
+./vendor/bin/pest
+```
 
-**Configuration:**
-- Set your `STRIPE_KEY` and `STRIPE_SECRET` in `.env`.
-- Update the plan ID in your billing configuration as needed.
+### Database configuration
 
-## Flux UI Pro
+This starter kit works with SQLite by default and supports MySQL and PostgreSQL too. You can switch adapters by updating the `DB_CONNECTION` environment variable in your `.env` file.
 
-- All UI components use [Flux UI Pro](https://www.fluxui.com/).
-- **A paid Flux UI Pro license is required.**
-- Set your Flux UI Pro credentials in `.env` as per the [Flux UI Pro documentation](https://www.fluxui.com/docs/pro/introduction).
+For example, to develop locally against MySQL:
 
-## Honeybadger Error Tracking
+```sh
+DB_CONNECTION=mysql
+# Then update DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD accordingly
+```
 
-- Integrated with [Honeybadger](https://www.honeybadger.io/) for error monitoring.
-- Set your `HONEYBADGER_API_KEY` in `.env`.
-- See the [Honeybadger Laravel docs](https://docs.honeybadger.io/lib/php/integration/laravel.html) for advanced configuration.
+### Code formatting
 
-## Opinionated Structure
+This starter kit uses Laravel Pint for PHP code formatting and Prettier for frontend code:
 
-This starter kit is intentionally opinionated:
-- Enforces subscription for all app access (except auth/billing)
-- Uses Stripe exclusively for billing
-- UI is built with Flux UI Pro (no fallback)
-- Honeybadger is the only error tracking provider
+```sh
+# Format PHP code
+./vendor/bin/pint
 
-Feel free to fork and adapt to your needs!
+# Format Blade templates
+npm run format-blade
+
+# Format all code
+composer format
+```
+
+## Tech Stack
+
+This starter kit is built with:
+
+- **Backend**: Laravel 12, PHP 8.2+
+- **Frontend**: Livewire 4, Flux UI Pro, Tailwind CSS 4
+- **Database**: SQLite (development), MySQL/PostgreSQL (production)
+- **Testing**: Pest PHP
+
+**Note**: This project requires a Flux UI Pro license. You can purchase one at [fluxui.dev](https://fluxui.dev/).
+
+## Contributing
+
+We welcome contributions! Please ensure all code follows the project's coding standards and passes all tests before submitting.
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and ensure they pass
+5. Format your code
+6. Submit a pull request
 
 ## License
 
-This project is open source, but you must purchase your own Flux UI Pro and Honeybadger licenses to use those services.
-
----
-
-**Happy hacking!**
-
----
-
-> _Built by Oliver as a personal SaaS starter kit. PRs and suggestions welcome._
+This starter kit is released under the [O'Saasy License](LICENSE.md).

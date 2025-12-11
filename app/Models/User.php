@@ -60,63 +60,63 @@ class User extends Authenticatable
             ->implode('');
     }
 
-    public function organizations()
+    public function teams()
     {
-        return $this->hasMany(Organization::class);
+        return $this->hasMany(Team::class);
     }
 
     /**
-     * Organizations where the user is a member (not owner).
+     * Teams where the user is a member (not owner).
      */
-    public function memberOrganizations()
+    public function memberTeams()
     {
-        return $this->belongsToMany(Organization::class, 'organization_user');
+        return $this->belongsToMany(Team::class, 'team_user');
     }
 
     /**
-     * All organizations the user owns or is a member of (unique).
+     * All teams the user owns or is a member of (unique).
      */
-    public function allOrganizations()
+    public function allTeams()
     {
-        return $this->organizations
-            ->merge($this->memberOrganizations)
+        return $this->teams
+            ->merge($this->memberTeams)
             ->unique('id')
             ->values();
     }
 
     /**
-     * Get the user's current organization.
+     * Get the user's current team.
      */
-    public function currentOrganization()
+    public function currentTeam()
     {
-        if (is_null($this->current_organization_id)) {
-            $this->assignPersonalOrganizationAsCurrent();
+        if (is_null($this->current_team_id)) {
+            $this->assignPersonalTeamAsCurrent();
 
             $this->fresh();
         }
 
-        return $this->belongsTo(Organization::class, 'current_organization_id');
+        return $this->belongsTo(Team::class, 'current_team_id');
     }
 
     /**
-     * Assign the user's personal organization as their current organization.
+     * Assign the user's personal team as their current team.
      */
-    private function assignPersonalOrganizationAsCurrent(): void
+    private function assignPersonalTeamAsCurrent(): void
     {
-        tap($this->organizations()->where('personal', true)->first(), function ($personalOrg) {
-            if ($personalOrg) {
-                $this->current_organization_id = $personalOrg->id;
+        tap($this->teams()->where('personal', true)->first(), function ($personalTeam) {
+            if ($personalTeam) {
+                $this->current_team_id = $personalTeam->id;
                 $this->save();
             }
         });
     }
 
     /**
-     * Switch the user's current organization.
+     * Switch the user's current team.
      */
-    public function switchOrganization(Organization $organization): void
+    public function switchTeam(Team $team): void
     {
-        $this->current_organization_id = $organization->id;
+        $this->current_team_id = $team->id;
 
         $this->save();
     }
