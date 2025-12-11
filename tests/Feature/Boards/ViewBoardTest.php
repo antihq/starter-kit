@@ -60,7 +60,6 @@ test('it can view individual board', function () {
     $board = Board::factory()->create([
         'team_id' => $team->id,
         'name' => 'Test Board',
-        'description' => 'Test Description',
     ]);
 
     // Create default columns like in the board creation
@@ -73,7 +72,7 @@ test('it can view individual board', function () {
     Livewire::actingAs($user)
         ->test('pages::boards.show', ['board' => $board])
         ->assertSee('Test Board')
-        ->assertSee('Test Description')
+
         ->assertSee('Maybe')
         ->assertSee('Not Now')
         ->assertSee('Done')

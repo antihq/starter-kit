@@ -31,11 +31,11 @@ it('can create a board with name only', function () {
     $columns = $board->columns()->get();
     expect($columns)->toHaveCount(3);
 
-    $maybeColumn = $columns->firstWhere('name', 'Maybe');
-    expect($maybeColumn->position)->toBe(1);
-
     $notNowColumn = $columns->firstWhere('name', 'Not Now');
-    expect($notNowColumn->position)->toBe(2);
+    expect($notNowColumn->position)->toBe(1);
+
+    $maybeColumn = $columns->firstWhere('name', 'Maybe?');
+    expect($maybeColumn->position)->toBe(2);
 
     $doneColumn = $columns->firstWhere('name', 'Done');
     expect($doneColumn->position)->toBe(3);

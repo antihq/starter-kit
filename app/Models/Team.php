@@ -30,6 +30,11 @@ class Team extends Model
         return $this->hasMany(TeamInvitation::class);
     }
 
+    public function boards()
+    {
+        return $this->hasMany(Board::class);
+    }
+
     public function members()
     {
         return $this->belongsToMany(User::class, 'team_user');

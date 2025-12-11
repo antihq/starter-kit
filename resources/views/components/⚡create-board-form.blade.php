@@ -1,45 +1,38 @@
 <?php
 
-use App\Models\Board;
+use App\Models\Team;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component
 {
+    public Team $team;
+
     public string $name = '';
 
-    public string $description = '';
+    public function mount()
+    {
+        $this->team = Auth::user()->currentTeam;
+    }
 
     public function create()
     {
-        if (! auth()->user()->currentTeam) {
-            return $this->redirect('/dashboard', navigate: true);
-        }
-
         $this->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
         ]);
 
-        $currentTeam = auth()->user()->currentTeam;
-        if (! $currentTeam) {
-            return $this->redirect('/dashboard', navigate: true);
-        }
-
-        $board = Board::create([
+        $board = $this->team->boards()->create([
             'name' => $this->name,
-            'description' => $this->description,
-            'team_id' => $currentTeam->id,
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
         ]);
 
         $board->columns()->createMany([
-            ['name' => 'Maybe', 'position' => 1],
-            ['name' => 'Not Now', 'position' => 2],
+            ['name' => 'Not Now', 'position' => 1],
+            ['name' => 'Maybe?', 'position' => 2],
             ['name' => 'Done', 'position' => 3],
         ]);
 
-        $this->name = '';
-        $this->description = '';
+        $this->reset('name');
 
         $this->dispatch('created');
     }
@@ -52,10 +45,7 @@ new class extends Component
 
     <flux:spacer class="mt-10" />
 
-    <div class="space-y-6">
-        <flux:input label="Board Name" placeholder="Project Board" wire:model="name" />
-        <flux:textarea label="Description (optional)" placeholder="What's this board for?" wire:model="description" />
-    </div>
+    <flux:input label="Board Name" placeholder="Project Board" wire:model="name" />
 
     <flux:spacer class="mt-8" />
 
