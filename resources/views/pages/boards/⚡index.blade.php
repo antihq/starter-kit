@@ -13,37 +13,58 @@ new #[Title('Boards')] class extends Component
     {
         return Board::where('team_id', auth()->user()->currentTeam->id)
             ->latest()
-            ->get();
+            ->paginate(10);
     }
 };
 ?>
 
 <div>
-    <header class="mb-8 flex items-center justify-between">
-        <flux:heading class="text-2xl">Boards</flux:heading>
-        <flux:modal.trigger name="create-board">
-            <flux:button variant="primary">Create Board</flux:button>
-        </flux:modal.trigger>
-    </header>
-
     @if ($this->boards->count() > 0)
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @foreach ($this->boards as $board)
-                <flux:card href="/boards/{{ $board->id }}" wire:navigate class="transition-shadow hover:shadow-md">
-                    <flux:heading class="text-lg">{{ $board->name }}</flux:heading>
-                </flux:card>
-            @endforeach
-        </div>
-    @else
-        <div class="py-12 text-center">
-            <flux:heading class="mb-2 text-xl">No boards yet</flux:heading>
-            <flux:text class="mb-6 text-zinc-600 dark:text-zinc-400">
-                Create your first board to get started with your team.
-            </flux:text>
+        <header class="flex items-center">
+            <flux:heading class="text-xl">All boards</flux:heading>
+            <flux:spacer />
             <flux:modal.trigger name="create-board">
-                <flux:button variant="primary">Create Board</flux:button>
+                <flux:button variant="primary" color="zinc" size="sm" icon="plus">New board</flux:button>
             </flux:modal.trigger>
-        </div>
+        </header>
+
+        <flux:separator class="mt-6" />
+
+        <flux:table :paginate="$this->boards" wire:poll>
+            <flux:table.rows>
+                @foreach ($this->boards as $board)
+                    <flux:table.row :key="$board->id">
+                        <flux:table.cell class="w-full">
+                            <div class="flex items-center gap-3">
+                                <flux:avatar
+                                    :name="strtoupper($board->name)"
+                                    size="xs"
+                                    color="auto"
+                                    initials:single
+                                    :color:seed="'board-'.$board->id"
+                                />
+                                <flux:link :href="'/boards/'.$board->id" :accent="false" wire:navigate>
+                                    {{ $board->name }}
+                                </flux:link>
+                            </div>
+                        </flux:table.cell>
+                        <flux:table.cell align="end" class="text-xs">
+                            {{ $board->created_at->format('M d') }}
+                        </flux:table.cell>
+                    </flux:table.row>
+                @endforeach
+            </flux:table.rows>
+        </flux:table>
+    @else
+        <flux:callout icon="document-text" inline>
+            <flux:callout.heading>No boards yet</flux:callout.heading>
+            <flux:callout.text>Create your first board to get started with your team.</flux:callout.text>
+            <x-slot name="actions">
+                <flux:modal.trigger name="create-board">
+                    <flux:button variant="primary" color="zinc" size="sm" icon="plus">New board</flux:button>
+                </flux:modal.trigger>
+            </x-slot>
+        </flux:callout>
     @endif
 
     <flux:modal name="create-board" class="md:w-[512px]">

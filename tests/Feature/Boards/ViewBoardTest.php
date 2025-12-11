@@ -16,7 +16,7 @@ test('it can view boards index page', function () {
 
     Livewire::actingAs($user)
         ->test('pages::boards.index')
-        ->assertSee('Boards')
+        ->assertSee('All boards')
         ->assertSee('Board 1')
         ->assertSee('Board 2')
         ->assertSee('Create Board');
