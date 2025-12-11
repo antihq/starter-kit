@@ -40,32 +40,34 @@ new #[Title('Board')] class extends Component
         @foreach ($this->columns as $column)
             <flux:kanban.column>
                 <flux:kanban.column.header :heading="$column->name" :count="$column->cards->count()" />
-                <flux:kanban.column.cards>
-                    @foreach ($column->cards as $card)
-                        <flux:card
-                            wire:navigate
-                            href="/cards/{{ $card->id }}"
-                            class="group cursor-pointer transition-shadow hover:shadow-md"
-                        >
-                            <flux:heading class="pr-8 text-sm">{{ $card->title }}</flux:heading>
-                        </flux:card>
-                    @endforeach
+                @unless ($column->cards->isEmpty())
+                    <flux:kanban.column.cards>
+                        @foreach ($column->cards as $card)
+                            <flux:card
+                                wire:navigate
+                                href="/cards/{{ $card->id }}"
+                                class="group cursor-pointer transition-shadow hover:shadow-md"
+                            >
+                                <flux:heading class="pr-8 text-sm">{{ $card->title }}</flux:heading>
+                            </flux:card>
+                        @endforeach
+                    </flux:kanban.column.cards>
+                @endunless
 
-                    @if ($column->cards->isEmpty())
-                        <flux:text class="py-8 text-center text-zinc-500">No cards yet</flux:text>
-                    @endif
-
-                    @if ($column->name === 'Maybe')
+                <flux:kanban.column.footer>
+                    @if ($column->name === 'Maybe?')
                         <flux:button
                             href="/boards/{{ $board->id }}/cards/create?column={{ $column->id }}"
-                            variant="subtle"
-                            class="mt-2 w-full"
+                            variant="subtle" icon="plus" size="sm" align="start"
                         >
-                            <flux:icon.plus variant="mini" />
-                            Add Card
+                            Add card
                         </flux:button>
+                    @elseif ($column->cards->isEmpty())
+                        <div class="flex items-center justify-between min-h-8">
+                            <flux:text class="px-3">No cards yet</flux:text>
+                        </div>
                     @endif
-                </flux:kanban.column.cards>
+                </flux:kanban.column.footer>
             </flux:kanban.column>
         @endforeach
     </flux:kanban>
