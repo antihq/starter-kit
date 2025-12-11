@@ -205,10 +205,150 @@ Route::middleware(['auth', 'verified'])->group(function () {
 - User belongs to multiple teams (uses current team)
 - Team member permissions (all members can access)
 
+## Card Creation System (Implemented)
+
+### Overview
+
+The board creation system has been extended with a complete card creation functionality, allowing users to create and manage cards within board columns.
+
+### Database Schema Enhancement
+
+#### Cards Table
+
+```sql
+CREATE TABLE cards (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    column_id BIGINT NOT NULL,
+    position INT NOT NULL DEFAULT 0,
+    user_id BIGINT NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL
+);
+```
+
+### Card Model
+
+```php
+class Card extends Model
+{
+    use HasFactory;
+
+    protected $guarded = [];
+
+    public function column()
+    {
+        return $this->belongsTo(Column::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function board()
+    {
+        return $this->column->board;
+    }
+}
+```
+
+### Enhanced Column Model
+
+```php
+class Column extends Model
+{
+    use HasFactory;
+
+    protected $guarded = [];
+
+    public function board()
+    {
+        return $this->belongsTo(Board::class);
+    }
+
+    public function cards()
+    {
+        return $this->hasMany(Card::class)->orderBy('position');
+    }
+}
+```
+
+### Card Creation Features
+
+#### Dedicated Creation Page
+
+- **Route**: `/boards/{board}/cards/create?column={id}`
+- **RESTful Design**: Nested resource pattern showing cards belong to boards
+- **Fallback**: Uses "Maybe" column when no column specified
+- **Form**: Title (required) + Rich text description (optional)
+- **Editor**: Flux Editor with simplified toolbar (`bold italic | bullet | link`)
+- **Redirect**: Returns to board after creation
+
+#### Card Viewing
+
+- **Route**: `/cards/{card}`
+- **Display**: Title and rich text description
+- **Navigation**: Breadcrumb with board name
+- **HTML Rendering**: Safe display of rich content
+
+#### Board Integration
+
+- **Card Display**: Title-only cards in columns
+- **Positioning**: New cards added to top (position 0)
+- **Navigation**: "Add Card" buttons link to creation page
+- **Responsive**: Works on mobile and desktop
+
+### Authorization
+
+#### CardPolicy
+
+```php
+class CardPolicy
+{
+    public function create(User $user): bool
+    {
+        return $user->currentTeam !== null;
+    }
+
+    public function view(User $user, Card $card): bool
+    {
+        return $card->board->team->members->contains($user) || $card->board->team->user->is($user);
+    }
+
+    public function update(User $user, Card $card): bool
+    {
+        return $card->board->team->members->contains($user) || $card->board->team->user->is($user);
+    }
+}
+```
+
+### Testing Coverage
+
+#### Card Tests
+
+- **CreateCardTest.php**: 4 comprehensive tests
+- **Creation**: Form submission and database storage
+- **Viewing**: Individual card display with rich content
+- **Validation**: Title requirements and character limits
+- **Authorization**: Team-based access control
+
+### Current Implementation Status
+
+- ✅ **Complete Card System**: Creation, viewing, and board integration
+- ✅ **Rich Text Support**: Flux Editor with HTML storage
+- ✅ **Position Management**: Integer-based for future drag-and-drop
+- ✅ **Full Test Coverage**: 41/41 tests passing
+- ✅ **Clean Architecture**: Dedicated pages vs modals
+
 ## Future Considerations
 
 ### Potential Enhancements
 
+- Card editing functionality
+- Card deletion with confirmations
+- Drag & drop card movement between columns
 - Column management (add/remove/reorder)
 - Board templates
 - Board colors/themes

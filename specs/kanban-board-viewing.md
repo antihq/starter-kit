@@ -148,6 +148,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('boards', 'pages::boards.index');
     Route::livewire('boards/create', 'pages::boards.create');
     Route::livewire('boards/{board}', 'pages::boards.show');
+    Route::livewire('boards/{board}/cards/create', 'pages::cards.create');
+    Route::livewire('cards/{card}', 'pages::cards.show');
 });
 ```
 
@@ -386,13 +388,148 @@ test('it can view boards index page', function () {
 1. `routes/web.php` - Added boards index route
 2. `resources/views/layouts/app.blade.php` - Added navigation links
 
-## Integration with Cards System
+## Cards System Integration (Implemented)
 
-The board viewing implementation is designed to seamlessly integrate with the future cards system:
+The board viewing implementation has been fully integrated with a complete cards system:
 
-- **Flux Kanban Component**: Already supports cards and drag-and-drop
-- **Column Structure**: Default columns ready for card population
-- **Empty States**: Clear indication where cards will appear
-- **Performance**: Efficient data loading for card-heavy boards
+### Card Display in Boards
 
-When cards are implemented, the existing `flux:kanban.column.cards` sections can be populated with card data without changing the overall structure.
+- **Title-Only Cards**: Clean display showing only card titles in columns
+- **Clickable Navigation**: Cards link to dedicated view pages
+- **Position Ordering**: Cards displayed by position (newest first)
+- **Empty States**: "No cards yet" message when columns are empty
+
+### Enhanced Board View
+
+```blade
+<flux:kanban>
+    @foreach ($this->columns as $column)
+        <flux:kanban.column>
+            <flux:kanban.column.header :heading="$column->name" :count="$column->cards->count()" />
+            <flux:kanban.column.cards>
+                @forelse ($column->cards as $card)
+                    <flux:kanban.card href="/cards/{{ $card->id }}" wire:navigate>
+                        {{ $card->title }}
+                    </flux:kanban.card>
+                @empty
+                    <flux:text class="py-8 text-center text-zinc-500">No cards yet</flux:text>
+                @endforelse
+            </flux:kanban.column.cards>
+
+            <flux:kanban.column.footer>
+                <flux:button
+                    href="/boards/{{ $board->id }}/cards/create?column={{ $column->id }}"
+                    variant="subtle"
+                    size="sm"
+                    wire:navigate
+                >
+                    Add Card
+                </flux:button>
+            </flux:kanban.column.footer>
+        </flux:kanban.column>
+    @endforeach
+</flux:kanban>
+```
+
+### Card Creation Integration
+
+- **"Add Card" Buttons**: In each column footer for targeted creation
+- **URL Parameters**: Pass board and column IDs to creation page
+- **Fallback Logic**: Creation page defaults to "Maybe" column when no column specified
+- **Seamless Flow**: Create card → return to board with new card visible
+
+### Card Viewing System
+
+#### Dedicated Card Pages
+
+- **Route**: `/cards/{card}` with full page layout
+- **Rich Content**: HTML rendering of card descriptions
+- **Breadcrumb Navigation**: `Boards > Board Name > Card Title`
+- **Back Navigation**: Easy return to parent board
+
+#### Card Creation Page
+
+- **Route**: `/boards/{board}/cards/create` with RESTful nested resource pattern
+- **Full-Page Form**: Better UX than modal approach
+- **Rich Text Editor**: Flux Editor with simplified toolbar
+- **Form Validation**: Title required, description optional
+- **Smart Redirects**: Return to originating board
+
+### Database Relationships
+
+#### Enhanced Column Model
+
+```php
+public function cards()
+{
+    return $this->hasMany(Card::class)->orderBy('position');
+}
+```
+
+#### Card Model
+
+```php
+public function column()
+{
+    return $this->belongsTo(Column::class);
+}
+
+public function board()
+{
+    return $this->column->board;
+}
+```
+
+### Authorization Integration
+
+#### CardPolicy
+
+- **Team-Based**: Inherits board's team permissions
+- **Consistent**: Same access patterns as boards
+- **Registered**: Added to Laravel's policy system
+
+### Performance Optimizations
+
+- **Efficient Loading**: Cards loaded with columns to prevent N+1 queries
+- **Position Indexing**: Database indexed for proper ordering
+- **Minimal DOM**: Title-only cards for fast rendering
+- **Livewire Navigation**: Smooth transitions between pages
+
+### Testing Coverage
+
+- **Card Creation Tests**: Form submission, validation, redirects
+- **Card Viewing Tests**: Individual card display, authorization
+- **Board Integration Tests**: Cards appear correctly in columns
+- **Full Test Suite**: 41/41 tests passing with no regressions
+
+### Current Implementation Status
+
+- ✅ **Complete Integration**: Cards fully integrated with board viewing
+- ✅ **Rich Text Support**: HTML descriptions with safe rendering
+- ✅ **Position System**: Ready for future drag-and-drop functionality
+- ✅ **Clean UX**: Dedicated pages vs modals for better experience
+- ✅ **Full Authorization**: Team-based permissions throughout
+- ✅ **Comprehensive Testing**: All functionality covered by tests
+
+## Future Enhancements
+
+### Card Management
+
+- Card editing functionality
+- Card deletion with confirmations
+- Drag & drop card movement between columns
+- Bulk card operations
+
+### Advanced Features
+
+- Card assignments and due dates
+- Card comments and attachments
+- Card templates and cloning
+- Advanced search and filtering
+
+### Board Enhancements
+
+- Column management (add/remove/reorder)
+- Board statistics and analytics
+- Activity logging and history
+- Board archiving and restoration
