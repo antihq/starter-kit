@@ -21,7 +21,7 @@ it('can create a board with name only', function () {
         ->test('create-board-form')
         ->set('name', 'Test Board')
         ->call('create')
-        ->assertRedirect('/boards/1');
+        ->assertDispatched('created');
 
     $board = Board::first();
     expect($board->name)->toBe('Test Board');
