@@ -58,13 +58,12 @@ new #[Title('Board')] class extends Component
                 @unless ($column->cards->isEmpty())
                     <flux:kanban.column.cards>
                         @foreach ($column->cards as $card)
-                            <flux:card
-                                wire:navigate
+                            <flux:kanban.card
+                                as="button"
+                                :heading="$card->title"
                                 href="/cards/{{ $card->id }}"
-                                class="group cursor-pointer transition-shadow hover:shadow-md"
-                            >
-                                <flux:heading class="pr-8 text-sm">{{ $card->title }}</flux:heading>
-                            </flux:card>
+                                wire:navigate
+                            />
                         @endforeach
                     </flux:kanban.column.cards>
                 @endunless
