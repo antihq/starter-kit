@@ -26,6 +26,11 @@ class Board extends Model
         return $this->hasMany(Column::class)->orderBy('position');
     }
 
+    public function cards()
+    {
+        return $this->hasManyThrough(Card::class, Column::class)->orderBy('position');
+    }
+
     public function maybeColumn()
     {
         return $this->columns()->where('name', 'Maybe?')->first();
