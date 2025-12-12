@@ -15,6 +15,10 @@ new #[Title('Board')] class extends Component
 
     public $showCreateCardForm = false;
 
+    public $selectedCard = null;
+
+    public $showCardModal = false;
+
     #[Computed]
     public function columns()
     {
@@ -36,6 +40,21 @@ new #[Title('Board')] class extends Component
 
         $this->createCardForm->store();
     }
+
+    public function selectCard(Card $card)
+    {
+        $this->authorize('view', $card);
+
+        $this->selectedCard = $card;
+
+        $this->showCardModal = true;
+    }
+
+    public function closeCardModal()
+    {
+        $this->showCardModal = false;
+        $this->selectedCard = null;
+    }
 };
 ?>
 
@@ -55,7 +74,7 @@ new #[Title('Board')] class extends Component
         @foreach ($this->columns as $column)
             <flux:kanban.column>
                 <flux:kanban.column.header :heading="$column->name" :count="$column->cards->count()" />
-                <div class="px-2 pb-2 flex flex-col gap-2">
+                <div class="flex flex-col gap-2 px-2 pb-2">
                     @if ($column->name === 'Maybe?')
                         <form wire:submit="createCard" x-show="$wire.showCreateCardForm" x-cloak>
                             <flux:kanban.card>
@@ -112,8 +131,7 @@ new #[Title('Board')] class extends Component
                             <flux:kanban.card
                                 as="button"
                                 :heading="$card->title"
-                                href="/cards/{{ $card->id }}"
-                                wire:navigate
+                                @click="$wire.selectCard({{ $card->id }})"
                             />
                         @endforeach
                     </flux:kanban.column.cards>
@@ -121,4 +139,40 @@ new #[Title('Board')] class extends Component
             </flux:kanban.column>
         @endforeach
     </flux:kanban>
+
+    <!-- Card Details Modal -->
+    <flux:modal wire:model="showCardModal" class="md:w-96">
+        @if ($selectedCard)
+            <div class="space-y-4">
+                <div>
+                    <flux:heading size="lg">{{ $selectedCard->title }}</flux:heading>
+                    <flux:text class="mt-1 text-sm text-zinc-500">
+                        Created {{ $selectedCard->created_at->diffForHumans() }} by {{ $selectedCard->user->name }}
+                    </flux:text>
+                </div>
+
+                @if ($selectedCard->description)
+                    <div>
+                        <flux:text size="sm">Description</flux:text>
+                        <div class="prose prose-sm mt-2 max-w-none">
+                            {!! $selectedCard->description !!}
+                        </div>
+                    </div>
+                @endif
+
+                <div class="flex items-center justify-between border-t pt-4">
+                    <flux:text class="text-sm text-zinc-500">Column: {{ $selectedCard->column->name }}</flux:text>
+                    <div class="flex gap-2">
+                        <flux:modal.close>
+                            <flux:button variant="ghost">Close</flux:button>
+                        </flux:modal.close>
+                        <flux:button href="/cards/{{ $selectedCard->id }}/edit" variant="subtle">
+                            <flux:icon.pencil variant="micro" />
+                            Edit
+                        </flux:button>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </flux:modal>
 </div>
