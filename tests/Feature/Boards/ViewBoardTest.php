@@ -265,3 +265,29 @@ test('it can move card to different column while editing', function () {
     expect($card->column_id)->toBe($newColumn->id);
     expect($card->position)->toBe(1);
 });
+
+test('it can move card to different column using radio group', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $originalColumn = $board->columns()->first();
+    $newColumn = $board->columns()->skip(1)->first();
+
+    $card = Card::factory()->for($originalColumn)->for($user)->create([
+        'title' => 'Test Card',
+        'position' => 1,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id)
+        ->assertSet('editCardForm.column_id', $originalColumn->id)
+        ->set('editCardForm.column_id', $newColumn->id)
+        ->call('moveCardToColumn');
+
+    $card->refresh();
+    expect($card->column_id)->toBe($newColumn->id);
+    expect($card->position)->toBe(1);
+});

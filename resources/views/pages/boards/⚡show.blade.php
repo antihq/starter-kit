@@ -50,6 +50,7 @@ new #[Title('Board')] class extends Component
         $this->authorize('view', $card);
 
         $this->selectedCard = $card;
+        $this->editCardForm->setCard($card);
 
         $this->isEditingCard = false;
 
@@ -81,6 +82,15 @@ new #[Title('Board')] class extends Component
         $this->selectedCard->refresh();
 
         $this->isEditingCard = false;
+    }
+
+    public function moveCardToColumn()
+    {
+        $this->authorize('update', $this->selectedCard);
+
+        $this->editCardForm->update();
+
+        $this->selectedCard->refresh();
     }
 };
 ?>
@@ -167,60 +177,78 @@ new #[Title('Board')] class extends Component
         @endforeach
     </flux:kanban>
 
-    <flux:modal wire:model="showCardModal" class="w-full max-w-216">
+    <flux:modal wire:model="showCardModal" class="flex h-full w-full max-w-216">
         @if ($selectedCard)
-            @if ($isEditingCard)
-                <!-- Edit Mode -->
-                <div class="space-y-4">
-                    <form wire:submit="updateCard" class="space-y-4">
-                        <div>
-                            <flux:heading>
-                                <input
-                                    wire:model="editCardForm.title"
-                                    placeholder="Enter card title..."
-                                    class="text-xl outline-none"
-                                    autofocus
+            <div class="flex-1">
+                @if ($isEditingCard)
+                    <!-- Edit Mode -->
+                    <div class="space-y-4">
+                        <form wire:submit="updateCard" class="space-y-4">
+                            <div>
+                                <flux:heading>
+                                    <input
+                                        wire:model="editCardForm.title"
+                                        placeholder="Enter card title..."
+                                        class="text-xl outline-none"
+                                        autofocus
+                                    />
+                                </flux:heading>
+                                <flux:error name="editCardForm.title" />
+                            </div>
+
+                            <flux:field>
+                                <flux:editor
+                                    wire:model="editCardForm.description"
+                                    placeholder="Enter card description..."
+                                    toolbar="bold italic | bullet | link"
+                                    class="**:data-[slot=content]:min-h-[150px]!"
                                 />
-                            </flux:heading>
-                            <flux:error name="editCardForm.title" />
+                                <flux:error name="editCardForm.description" />
+                            </flux:field>
+                        </form>
+                        <div class="flex items-center gap-2">
+                            <flux:button wire:click="cancelEditing" variant="subtle" size="sm">Cancel</flux:button>
+                            <flux:button wire:click="updateCard" variant="filled" size="sm">Save</flux:button>
                         </div>
-
-                        <flux:field>
-                            <flux:editor
-                                wire:model="editCardForm.description"
-                                placeholder="Enter card description..."
-                                toolbar="bold italic | bullet | link"
-                                class="**:data-[slot=content]:min-h-[150px]!"
-                            />
-                            <flux:error name="editCardForm.description" />
-                        </flux:field>
-                    </form>
-                    <div class="flex items-center gap-2">
-                        <flux:button wire:click="cancelEditing" variant="subtle" size="sm">Cancel</flux:button>
-                        <flux:button wire:click="updateCard" variant="filled" size="sm">Save</flux:button>
                     </div>
-                </div>
-            @else
-                <!-- View Mode -->
-                <div class="space-y-4">
-                    <header class="flex items-center justify-between">
-                        <flux:button
-                            variant="ghost"
-                            inset="left right top bottom"
-                            class="text-left text-xl"
-                            wire:click="startEditingCard"
-                        >
-                            {{ $selectedCard->title }}
-                        </flux:button>
-                    </header>
+                @else
+                    <!-- View Mode -->
+                    <div class="space-y-4">
+                        <header class="flex items-center justify-between">
+                            <flux:button
+                                variant="ghost"
+                                inset="left right top bottom"
+                                class="text-left text-xl"
+                                wire:click="startEditingCard"
+                            >
+                                {{ $selectedCard->title }}
+                            </flux:button>
+                        </header>
 
-                    @if ($selectedCard->description)
-                        <div class="prose prose-sm prose-zinc max-w-none">
-                            {!! $selectedCard->description !!}
-                        </div>
-                    @endif
-                </div>
-            @endif
+                        @if ($selectedCard->description)
+                            <div class="prose prose-sm prose-zinc max-w-none">
+                                {!! $selectedCard->description !!}
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </div>
         @endif
+
+        <div class="-my-4 -mr-4 w-70 rounded-lg bg-zinc-100 p-4">
+            <flux:radio.group
+                wire:model="editCardForm.column_id"
+                variant="buttons"
+                class="w-full *:flex-1"
+                label="Move to column"
+                wire:change="moveCardToColumn"
+            >
+                @foreach ($this->columns as $column)
+                    <flux:radio :value="$column->id">
+                        {{ $column->name }}
+                    </flux:radio>
+                @endforeach
+            </flux:radio.group>
+        </div>
     </flux:modal>
 </div>
