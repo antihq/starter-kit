@@ -37,9 +37,9 @@ new #[Title('Board')] class extends Component
         @endif
     </header>
 
-    <flux:kanban wire:sort>
+    <flux:kanban wire:sort="moveColumn">
         @foreach ($this->board->columns as $column)
-            <livewire:boards.column :column="$column" wire:key="$column->id" wire:sort:item lazy:bundle lazy />
+            <livewire:boards.column :column="$column" wire:key="{{ $column->id }}" wire:sort:item="{{ $column->id }}" />
         @endforeach
     </flux:kanban>
 </div>

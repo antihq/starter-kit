@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Column extends Model
 {
@@ -41,5 +42,30 @@ class Column extends Model
     public function removeCardFromSequence(int $position): void
     {
         $this->shiftCardsUp($position);
+    }
+
+    public function move(int $newPosition): void
+    {
+        if ($this->position === $newPosition) {
+            return;
+        }
+
+        DB::transaction(function () use ($newPosition) {
+            $oldPosition = $this->position;
+
+            match (true) {
+                $newPosition < $oldPosition => $this->board->columns()
+                    ->where('position', '>=', $newPosition)
+                    ->where('position', '<', $oldPosition)
+                    ->increment('position'),
+
+                default => $this->board->columns()
+                    ->where('position', '>', $oldPosition)
+                    ->where('position', '<=', $newPosition)
+                    ->decrement('position'),
+            };
+
+            $this->update(['position' => $newPosition]);
+        });
     }
 }
