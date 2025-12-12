@@ -44,14 +44,9 @@ new class extends Component
 ?>
 
 <div {{ $attributes }}>
-    <flux:modal class="h-full w-full max-w-216 pt-1.5 pr-1.5 pb-1.5">
+    <flux:modal class="h-full w-full max-w-216 pt-1.5 pr-1.5 pb-1.5" @close="$refresh">
         <x-slot name="trigger">
-            <flux:kanban.card
-                as="button"
-                :heading="$card->title"
-                wire:key="{{ $card->id }}"
-                wire:sort:item="{{ $card->id }}"
-            />
+            <flux:kanban.card as="button" :heading="$card->title" />
         </x-slot>
 
         @island(lazy: true)
