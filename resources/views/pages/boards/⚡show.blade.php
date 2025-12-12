@@ -55,20 +55,7 @@ new #[Title('Board')] class extends Component
         @foreach ($this->columns as $column)
             <flux:kanban.column>
                 <flux:kanban.column.header :heading="$column->name" :count="$column->cards->count()" />
-                @unless ($column->cards->isEmpty())
-                    <flux:kanban.column.cards>
-                        @foreach ($column->cards as $card)
-                            <flux:kanban.card
-                                as="button"
-                                :heading="$card->title"
-                                href="/cards/{{ $card->id }}"
-                                wire:navigate
-                            />
-                        @endforeach
-                    </flux:kanban.column.cards>
-                @endunless
-
-                <flux:kanban.column.footer>
+                <div class="px-2 pb-2 flex flex-col gap-2">
                     @if ($column->name === 'Maybe?')
                         <form wire:submit="createCard" x-show="$wire.showCreateCardForm" x-cloak>
                             <flux:kanban.card>
@@ -83,6 +70,14 @@ new #[Title('Board')] class extends Component
                                         />
                                     </flux:heading>
                                     <flux:button
+                                        @click="$wire.showCreateCardForm = false"
+                                        variant="subtle"
+                                        icon="x-mark"
+                                        size="sm"
+                                        inset="top bottom"
+                                        square
+                                    />
+                                    <flux:button
                                         type="submit"
                                         variant="filled"
                                         size="sm"
@@ -95,17 +90,6 @@ new #[Title('Board')] class extends Component
                                 <flux:error name="createCardForm.title" />
                             </flux:kanban.card>
                         </form>
-                        <flux:button
-                            x-show="$wire.showCreateCardForm"
-                            @click="$wire.showCreateCardForm = false"
-                            variant="subtle"
-                            icon="x-mark"
-                            size="sm"
-                            align="start"
-                            x-cloak
-                        >
-                            Cancel
-                        </flux:button>
                         <flux:button
                             x-show="! $wire.showCreateCardForm"
                             @click="$wire.showCreateCardForm = true"
@@ -121,7 +105,19 @@ new #[Title('Board')] class extends Component
                             <flux:text class="px-3">No cards yet</flux:text>
                         </div>
                     @endif
-                </flux:kanban.column.footer>
+                </div>
+                @unless ($column->cards->isEmpty())
+                    <flux:kanban.column.cards>
+                        @foreach ($column->cards as $card)
+                            <flux:kanban.card
+                                as="button"
+                                :heading="$card->title"
+                                href="/cards/{{ $card->id }}"
+                                wire:navigate
+                            />
+                        @endforeach
+                    </flux:kanban.column.cards>
+                @endunless
             </flux:kanban.column>
         @endforeach
     </flux:kanban>
