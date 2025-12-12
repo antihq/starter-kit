@@ -177,9 +177,9 @@ new #[Title('Board')] class extends Component
         @endforeach
     </flux:kanban>
 
-    <flux:modal wire:model="showCardModal" class="flex h-full w-full max-w-216">
+    <flux:modal wire:model="showCardModal" class="flex gap-4 h-full w-full max-w-216 pt-1.5 pr-1.5 pb-1.5">
         @if ($selectedCard)
-            <div class="flex-1">
+            <div class="flex-1 py-4.5">
                 @if ($isEditingCard)
                     <!-- Edit Mode -->
                     <div class="space-y-4">
@@ -189,7 +189,7 @@ new #[Title('Board')] class extends Component
                                     <input
                                         wire:model="editCardForm.title"
                                         placeholder="Enter card title..."
-                                        class="text-xl outline-none"
+                                        class="text-xl outline-none w-full"
                                         autofocus
                                     />
                                 </flux:heading>
@@ -218,7 +218,7 @@ new #[Title('Board')] class extends Component
                             <flux:button
                                 variant="ghost"
                                 inset="left right top bottom"
-                                class="text-left text-xl"
+                                class="text-xl w-full justify-start"
                                 wire:click="startEditingCard"
                             >
                                 {{ $selectedCard->title }}
@@ -235,7 +235,7 @@ new #[Title('Board')] class extends Component
             </div>
         @endif
 
-        <div class="-my-4 -mr-4 w-70 rounded-lg bg-zinc-100 p-4">
+        <div class="w-70 rounded-lg bg-zinc-100 p-4.5">
             <flux:radio.group
                 wire:model="editCardForm.column_id"
                 variant="buttons"
@@ -244,7 +244,7 @@ new #[Title('Board')] class extends Component
                 wire:change="moveCardToColumn"
             >
                 @foreach ($this->columns as $column)
-                    <flux:radio :value="$column->id">
+                    <flux:radio :value="$column->id" size="sm">
                         {{ $column->name }}
                     </flux:radio>
                 @endforeach
