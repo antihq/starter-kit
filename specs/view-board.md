@@ -1,0 +1,3 @@
+- Add new cards
+    - Only the the "Maybe?" column
+- View cards on a modal

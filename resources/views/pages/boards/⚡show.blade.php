@@ -49,12 +49,6 @@ new #[Title('Board')] class extends Component
 
         $this->showCardModal = true;
     }
-
-    public function closeCardModal()
-    {
-        $this->showCardModal = false;
-        $this->selectedCard = null;
-    }
 };
 ?>
 

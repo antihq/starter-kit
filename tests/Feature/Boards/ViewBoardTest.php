@@ -4,6 +4,7 @@ use App\Models\Board;
 use App\Models\Card;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
 test('it can view boards index page', function () {
@@ -112,7 +113,7 @@ test('it can create card inline and see it in the board', function () {
     $board = Board::factory()->for($team)->create();
     $board->createDefaultColumns();
 
-    $livewire = Livewire::actingAs($user)
+    $component = Livewire::actingAs($user)
         ->test('pages::boards.show', ['board' => $board])
         ->set('createCardForm.title', 'New Inline Card')
         ->call('createCard');
@@ -152,4 +153,60 @@ test('inline card creation maintains correct positioning', function () {
 
     $existingCard2->refresh();
     expect($existingCard2->position)->toBe(3);
+});
+
+test('it can select card and show modal', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $column = $board->columns()->first();
+
+    $card = Card::factory()->for($column)->for($user)->create([
+        'title' => 'Test Card',
+        'description' => 'Test description',
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id);
+
+    $component
+        ->assertSet('showCardModal', true)
+        ->assertSet('selectedCard.id', $card->id);
+});
+
+test('it cannot select card from different team', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+    $otherUser = User::factory()->withPersonalTeam()->create();
+
+    $board = Board::factory()->for($team)->create();;
+    $card = Card::factory()->for($otherUser)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id)
+        ->assertForbidden();
+});
+
+test('team member can select card from shared board', function () {
+    $owner = User::factory()->withPersonalTeam()->create();
+    $member = User::factory()->create();
+    $team = $owner->currentTeam;
+    $team->addMember($member);
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $column = $board->columns()->first();
+
+    $card = Card::factory()->for($column)->for($owner)->create([
+        'title' => 'Shared Card',
+    ]);
+
+    Livewire::actingAs($member)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id)
+        ->assertOk();
 });
