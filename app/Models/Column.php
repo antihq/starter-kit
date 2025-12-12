@@ -20,4 +20,9 @@ class Column extends Model
     {
         return $this->hasMany(Card::class)->orderBy('position');
     }
+
+    public function shiftCardsDown(): void
+    {
+        $this->cards()->increment('position');
+    }
 }

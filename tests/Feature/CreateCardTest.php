@@ -7,18 +7,16 @@ use App\Models\User;
 use Livewire\Livewire;
 
 test('it can create a card at the top of the maybe column', function () {
-    $user = User::factory()->create();
-    $team = Team::factory()->create(['user_id' => $user->id]);
-    $user->current_team_id = $team->id;
-    $user->save();
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
 
-    $board = Board::factory()->create(['team_id' => $team->id]);
+    $board = Board::factory()->for($team)->create();
     $board->columns()->createMany([
         ['name' => 'Maybe', 'position' => 1],
         ['name' => 'Not Now', 'position' => 2],
         ['name' => 'Done', 'position' => 3],
     ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $maybeColumn = $board->maybeColumn();
 
     // Create existing card
     $existingCard = Card::factory()->create([
@@ -115,4 +113,54 @@ test('redirects to board after successful card creation', function () {
         ->set('description', '<p>Test description</p>')
         ->call('createCard')
         ->assertRedirect("/boards/{$board->id}");
+});
+
+test('it can create a card inline on board show page', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->current_team_id = $team->id;
+    $user->save();
+
+    $board = Board::factory()->create(['team_id' => $team->id]);
+    $board->columns()->createMany([
+        ['name' => 'Maybe?', 'position' => 1],
+        ['name' => 'Not Now', 'position' => 2],
+        ['name' => 'Done', 'position' => 3],
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->set('createCardForm.title', 'New Inline Card')
+        ->call('createCard')
+        ->assertOk();
+
+    // Verify the card was created
+    $newCard = Card::where('title', 'New Inline Card')->first();
+    expect($newCard)->not->toBeNull();
+    expect($newCard->position)->toBe(1);
+    expect($newCard->user_id)->toBe($user->id);
+
+    // Verify it's in the Maybe? column
+    $maybeColumn = $board->columns()->where('name', 'Maybe?')->first();
+    expect($newCard->column_id)->toBe($maybeColumn->id);
+});
+
+test('inline card creation requires title', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->current_team_id = $team->id;
+    $user->save();
+
+    $board = Board::factory()->create(['team_id' => $team->id]);
+    $board->columns()->createMany([
+        ['name' => 'Maybe?', 'position' => 1],
+        ['name' => 'Not Now', 'position' => 2],
+        ['name' => 'Done', 'position' => 3],
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->set('createCardForm.title', '')
+        ->call('createCard')
+        ->assertHasErrors(['createCardForm.title' => 'required']);
 });

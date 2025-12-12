@@ -1,7 +1,8 @@
 <?php
 
+use App\Livewire\Forms\CardForm;
 use App\Models\Board;
-use Illuminate\Support\Facades\DB;
+use App\Models\Card;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -10,16 +11,30 @@ new #[Title('Board')] class extends Component
 {
     public Board $board;
 
+    public CardForm $createCardForm;
+
+    public $showCreateCardForm = false;
+
     #[Computed]
     public function columns()
     {
         return $this->board->columns()->with('cards')->orderBy('position')->get();
     }
 
-    public function mount(Board $board)
+    public function mount()
     {
-        $this->authorize('view', $board);
-        $this->board = $board;
+        $this->authorize('view', $this->board);
+
+        if ($maybeColumn = $this->board->maybeColumn()) {
+            $this->createCardForm->setColumn($maybeColumn);
+        }
+    }
+
+    public function createCard()
+    {
+        $this->authorize('create', Card::class);
+
+        $this->createCardForm->store();
     }
 };
 ?>
@@ -56,14 +71,54 @@ new #[Title('Board')] class extends Component
 
                 <flux:kanban.column.footer>
                     @if ($column->name === 'Maybe?')
+                        <form wire:submit="createCard" x-show="$wire.showCreateCardForm" x-cloak>
+                            <flux:kanban.card>
+                                <div class="flex items-center gap-1">
+                                    <flux:heading class="flex-1">
+                                        <input
+                                            class="w-full outline-none"
+                                            wire:model="createCardForm.title"
+                                            placeholder="New card..."
+                                            required
+                                            autofocus
+                                        />
+                                    </flux:heading>
+                                    <flux:button
+                                        type="submit"
+                                        variant="filled"
+                                        size="sm"
+                                        inset="top bottom"
+                                        class="-me-1.5"
+                                    >
+                                        Add
+                                    </flux:button>
+                                </div>
+                                <flux:error name="createCardForm.title" />
+                            </flux:kanban.card>
+                        </form>
                         <flux:button
-                            href="/boards/{{ $board->id }}/cards/create?column={{ $column->id }}"
-                            variant="subtle" icon="plus" size="sm" align="start"
+                            x-show="$wire.showCreateCardForm"
+                            @click="$wire.showCreateCardForm = false"
+                            variant="subtle"
+                            icon="x-mark"
+                            size="sm"
+                            align="start"
+                            x-cloak
+                        >
+                            Cancel
+                        </flux:button>
+                        <flux:button
+                            x-show="! $wire.showCreateCardForm"
+                            @click="$wire.showCreateCardForm = true"
+                            variant="subtle"
+                            icon="plus"
+                            size="sm"
+                            align="start"
                         >
                             Add card
                         </flux:button>
                     @elseif ($column->cards->isEmpty())
-                        <div class="flex items-center justify-between min-h-8">
+                        <div class="flex min-h-8 items-center justify-between">
                             <flux:text class="px-3">No cards yet</flux:text>
                         </div>
                     @endif
