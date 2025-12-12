@@ -13,11 +13,15 @@ new #[Title('Board')] class extends Component
 
     public CardForm $createCardForm;
 
+    public CardForm $editCardForm;
+
     public $showCreateCardForm = false;
 
     public $selectedCard = null;
 
     public $showCardModal = false;
+
+    public $isEditingCard = false;
 
     #[Computed]
     public function columns()
@@ -47,7 +51,36 @@ new #[Title('Board')] class extends Component
 
         $this->selectedCard = $card;
 
+        $this->isEditingCard = false;
+
         $this->showCardModal = true;
+    }
+
+    public function startEditingCard()
+    {
+        $this->authorize('update', $this->selectedCard);
+
+        $this->editCardForm->setCard($this->selectedCard);
+
+        $this->isEditingCard = true;
+    }
+
+    public function cancelEditing()
+    {
+        $this->isEditingCard = false;
+
+        $this->editCardForm->setCard($this->selectedCard);
+    }
+
+    public function updateCard()
+    {
+        $this->authorize('update', $this->selectedCard);
+
+        $this->editCardForm->update();
+
+        $this->selectedCard->refresh();
+
+        $this->isEditingCard = false;
     }
 };
 ?>
@@ -134,39 +167,60 @@ new #[Title('Board')] class extends Component
         @endforeach
     </flux:kanban>
 
-    <!-- Card Details Modal -->
-    <flux:modal wire:model="showCardModal" class="md:w-96">
+    <flux:modal wire:model="showCardModal" class="w-full max-w-216">
         @if ($selectedCard)
-            <div class="space-y-4">
-                <div>
-                    <flux:heading size="lg">{{ $selectedCard->title }}</flux:heading>
-                    <flux:text class="mt-1 text-sm text-zinc-500">
-                        Created {{ $selectedCard->created_at->diffForHumans() }} by {{ $selectedCard->user->name }}
-                    </flux:text>
-                </div>
+            @if ($isEditingCard)
+                <!-- Edit Mode -->
+                <div class="space-y-4">
+                    <form wire:submit="updateCard" class="space-y-4">
+                        <div>
+                            <flux:heading>
+                                <input
+                                    wire:model="editCardForm.title"
+                                    placeholder="Enter card title..."
+                                    class="text-xl outline-none"
+                                    autofocus
+                                />
+                            </flux:heading>
+                            <flux:error name="editCardForm.title" />
+                        </div>
 
-                @if ($selectedCard->description)
-                    <div>
-                        <flux:text size="sm">Description</flux:text>
-                        <div class="prose prose-sm mt-2 max-w-none">
+                        <flux:field>
+                            <flux:editor
+                                wire:model="editCardForm.description"
+                                placeholder="Enter card description..."
+                                toolbar="bold italic | bullet | link"
+                                class="**:data-[slot=content]:min-h-[150px]!"
+                            />
+                            <flux:error name="editCardForm.description" />
+                        </flux:field>
+                    </form>
+                    <div class="flex items-center gap-2">
+                        <flux:button wire:click="cancelEditing" variant="subtle" size="sm">Cancel</flux:button>
+                        <flux:button wire:click="updateCard" variant="filled" size="sm">Save</flux:button>
+                    </div>
+                </div>
+            @else
+                <!-- View Mode -->
+                <div class="space-y-4">
+                    <header class="flex items-center justify-between">
+                        <flux:button
+                            variant="ghost"
+                            inset="left right top bottom"
+                            class="text-left text-xl"
+                            wire:click="startEditingCard"
+                        >
+                            {{ $selectedCard->title }}
+                        </flux:button>
+                    </header>
+
+                    @if ($selectedCard->description)
+                        <div class="prose prose-sm prose-zinc max-w-none">
                             {!! $selectedCard->description !!}
                         </div>
-                    </div>
-                @endif
-
-                <div class="flex items-center justify-between border-t pt-4">
-                    <flux:text class="text-sm text-zinc-500">Column: {{ $selectedCard->column->name }}</flux:text>
-                    <div class="flex gap-2">
-                        <flux:modal.close>
-                            <flux:button variant="ghost">Close</flux:button>
-                        </flux:modal.close>
-                        <flux:button href="/cards/{{ $selectedCard->id }}/edit" variant="subtle">
-                            <flux:icon.pencil variant="micro" />
-                            Edit
-                        </flux:button>
-                    </div>
+                    @endif
                 </div>
-            </div>
+            @endif
         @endif
     </flux:modal>
 </div>

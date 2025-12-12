@@ -4,7 +4,6 @@ use App\Models\Board;
 use App\Models\Card;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
 test('it can view boards index page', function () {
@@ -182,7 +181,7 @@ test('it cannot select card from different team', function () {
     $team = $user->currentTeam;
     $otherUser = User::factory()->withPersonalTeam()->create();
 
-    $board = Board::factory()->for($team)->create();;
+    $board = Board::factory()->for($team)->create();
     $card = Card::factory()->for($otherUser)->create();
 
     Livewire::actingAs($user)
@@ -209,4 +208,60 @@ test('team member can select card from shared board', function () {
         ->test('pages::boards.show', ['board' => $board])
         ->call('selectCard', $card->id)
         ->assertOk();
+});
+
+test('it can edit card title and description inline', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $column = $board->columns()->first();
+
+    $card = Card::factory()->for($column)->for($user)->create([
+        'title' => 'Original Title',
+        'description' => 'Original Description',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id)
+        ->assertSet('selectedCard.id', $card->id)
+        ->assertSet('isEditingCard', false)
+        ->call('startEditingCard')
+        ->assertSet('isEditingCard', true)
+        ->set('editCardForm.title', 'Updated Title')
+        ->set('editCardForm.description', 'Updated Description')
+        ->call('updateCard')
+        ->assertSet('isEditingCard', false);
+
+    $card->refresh();
+    expect($card->title)->toBe('Updated Title');
+    expect($card->description)->toBe('Updated Description');
+});
+
+test('it can move card to different column while editing', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $originalColumn = $board->columns()->first();
+    $newColumn = $board->columns()->skip(1)->first();
+
+    $card = Card::factory()->for($originalColumn)->for($user)->create([
+        'title' => 'Test Card',
+        'position' => 1,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->call('selectCard', $card->id)
+        ->call('startEditingCard')
+        ->set('editCardForm.column_id', $newColumn->id)
+        ->call('updateCard');
+
+    $card->refresh();
+    expect($card->column_id)->toBe($newColumn->id);
+    expect($card->position)->toBe(1);
 });

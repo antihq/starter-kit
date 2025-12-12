@@ -25,4 +25,21 @@ class Column extends Model
     {
         $this->cards()->increment('position');
     }
+
+    public function shiftCardsUp(int $fromPosition): void
+    {
+        $this->cards()
+            ->where('position', '>', $fromPosition)
+            ->decrement('position');
+    }
+
+    public function addCardToTop(): void
+    {
+        $this->shiftCardsDown();
+    }
+
+    public function removeCardFromSequence(int $position): void
+    {
+        $this->shiftCardsUp($position);
+    }
 }

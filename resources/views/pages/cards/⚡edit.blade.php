@@ -28,7 +28,7 @@ new #[Title('Edit Card')] class extends Component
         $this->authorize('update', $card);
         $this->card = $card;
         $this->title = $card->title;
-        $this->description = $card->description;
+        $this->description = $card->description ?? '';
         $this->column_id = $card->column_id;
     }
 
