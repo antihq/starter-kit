@@ -26,11 +26,7 @@ new class extends Component
             'user_id' => Auth::id(),
         ]);
 
-        $board->columns()->createMany([
-            ['name' => 'Not Now', 'position' => 1],
-            ['name' => 'Maybe?', 'position' => 2],
-            ['name' => 'Done', 'position' => 3],
-        ]);
+        $board->createDefaultColumns();
 
         $this->reset('name');
 

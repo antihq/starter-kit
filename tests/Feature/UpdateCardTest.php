@@ -13,12 +13,8 @@ test('it can update card title and description', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -45,12 +41,8 @@ test('it can move card between columns', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
     $notNowColumn = $board->columns()->where('name', 'Not Now')->first();
 
     $card = Card::factory()->create([
@@ -76,12 +68,8 @@ test('it manages positions correctly when moving cards', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
     $notNowColumn = $board->columns()->where('name', 'Not Now')->first();
 
     // Create existing card in target column
@@ -115,12 +103,8 @@ test('it adjusts old column positions when moving card', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
     $notNowColumn = $board->columns()->where('name', 'Not Now')->first();
 
     // Create cards below moving card in original column
@@ -152,12 +136,8 @@ test('card editing requires valid title', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -187,12 +167,8 @@ test('card editing requires valid column', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -214,12 +190,8 @@ test('unauthorized users cannot edit cards', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -240,12 +212,8 @@ test('team members can edit cards', function () {
     $member->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -268,12 +236,8 @@ test('edit form shows current card values', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,
@@ -301,12 +265,8 @@ test('it does not change positions when staying in same column', function () {
     $user->save();
 
     $board = Board::factory()->create(['team_id' => $team->id]);
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
-    $maybeColumn = $board->columns()->where('name', 'Maybe')->first();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
 
     $card = Card::factory()->create([
         'column_id' => $maybeColumn->id,

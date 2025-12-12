@@ -10,7 +10,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('boards', 'pages::boards.index');
 
     Route::livewire('boards/{board}', 'pages::boards.show');
-    Route::livewire('boards/{board}/cards/create', 'pages::cards.create');
     Route::livewire('cards/{card}', 'pages::cards.show');
     Route::livewire('cards/{card}/edit', 'pages::cards.edit');
 });

@@ -30,4 +30,13 @@ class Board extends Model
     {
         return $this->columns()->where('name', 'Maybe?')->first();
     }
+
+    public function createDefaultColumns()
+    {
+        return $this->columns()->createMany([
+            ['name' => 'Not Now', 'position' => 1],
+            ['name' => 'Maybe?', 'position' => 2],
+            ['name' => 'Done', 'position' => 3],
+        ]);
+    }
 }

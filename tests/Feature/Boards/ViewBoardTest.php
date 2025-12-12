@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Board;
+use App\Models\Card;
 use App\Models\Team;
 use App\Models\User;
 use Livewire\Livewire;
@@ -62,12 +63,7 @@ test('it can view individual board', function () {
         'name' => 'Test Board',
     ]);
 
-    // Create default columns like in the board creation
-    $board->columns()->createMany([
-        ['name' => 'Maybe', 'position' => 1],
-        ['name' => 'Not Now', 'position' => 2],
-        ['name' => 'Done', 'position' => 3],
-    ]);
+    $board->createDefaultColumns();
 
     Livewire::actingAs($user)
         ->test('pages::boards.show', ['board' => $board])
@@ -107,4 +103,53 @@ test('team member can view board', function () {
     Livewire::actingAs($member)
         ->test('pages::boards.show', ['board' => $board])
         ->assertSee($board->name);
+});
+
+test('it can create card inline and see it in the board', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+
+    $livewire = Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->set('createCardForm.title', 'New Inline Card')
+        ->call('createCard');
+
+    $maybeColumn = $board->maybeColumn();
+    $card = $maybeColumn->cards()->where('title', 'New Inline Card')->first();
+    expect($card)->not->toBeNull();
+    expect($card->user->is($user))->toBeTrue();
+});
+
+test('inline card creation maintains correct positioning', function () {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $board = Board::factory()->for($team)->create();
+    $board->createDefaultColumns();
+    $maybeColumn = $board->maybeColumn();
+
+    $existingCard1 = Card::factory()->for($maybeColumn)->for($user)->create([
+        'position' => 1,
+    ]);
+    $existingCard2 = Card::factory()->for($maybeColumn)->for($user)->create([
+        'position' => 2,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test('pages::boards.show', ['board' => $board])
+        ->set('createCardForm.title', 'New Top Card')
+        ->call('createCard');
+
+    $newCard = $maybeColumn->cards()->where('title', 'New Top Card')->first();
+    expect($newCard)->not->toBeNull();
+    expect($newCard->position)->toBe(1);
+
+    $existingCard1->refresh();
+    expect($existingCard1->position)->toBe(2);
+
+    $existingCard2->refresh();
+    expect($existingCard2->position)->toBe(3);
 });
